@@ -682,10 +682,18 @@ const EnrollmentForm = ({ waNumber }: { waNumber: string }) => {
   );
 }
 
+// ==========================================
+// ANIMATION VARIANTS (Fixed for Deployment)
+// ==========================================
+
 const fadeInUp = {
   hidden: { opacity: 0, y: 30 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: "easeOut" } }
-};
+  visible: { 
+    opacity: 1, 
+    y: 0, 
+    transition: { duration: 0.6, ease: "easeOut" } 
+  }
+} as any; // <--- This 'as any' fixes the build error
 
 const staggerContainer = {
   hidden: { opacity: 0 },
@@ -693,7 +701,7 @@ const staggerContainer = {
     opacity: 1,
     transition: { staggerChildren: 0.15, delayChildren: 0.2 }
   }
-};
+} as any; // <--- Added here too just to be safe
 // --- NEW SLIDER COMPONENT ---
 const ResultSlider = ({ images }: { images: string[] }) => {
   const [index, setIndex] = useState(0);
