@@ -13,7 +13,7 @@ import {
 
 const CONFIG = {
   waNumber: "919827067941", 
-  videoFile: "/video.mp4", 
+  videoFile: "/demo.mp4", 
   targetDate: "2026-04-01T10:00:00", // DATE FOR TIMER (YYYY-MM-DD)
 };
 
