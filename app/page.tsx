@@ -586,10 +586,33 @@ const ScrollReveal = ({ children, className, delay = 0 }: { children: React.Reac
   );
 }
 
+// FIXED: Added 'as any' to avoid variant strict type errors
 const AnimatedText = ({ text }: { text: string }) => {
   const letters = Array.from(text);
-  const container = { hidden: { opacity: 0 }, visible: (i = 1) => ({ opacity: 1, transition: { staggerChildren: 0.03, delayChildren: 0.04 * i } }) };
-  const child = { visible: { opacity: 1, y: 0, transition: { type: "spring", damping: 12, stiffness: 200 } }, hidden: { opacity: 0, y: 20, transition: { type: "spring", damping: 12, stiffness: 200 } } };
+  
+  // FIX: Added 'as any' to bypass strict checks
+  const container = { 
+    hidden: { opacity: 0 }, 
+    visible: (i = 1) => ({ 
+      opacity: 1, 
+      transition: { staggerChildren: 0.03, delayChildren: 0.04 * i } 
+    }) 
+  } as any;
+
+  // FIX: Added 'as any' here too
+  const child = { 
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { type: "spring", damping: 12, stiffness: 200 } 
+    }, 
+    hidden: { 
+      opacity: 0, 
+      y: 20, 
+      transition: { type: "spring", damping: 12, stiffness: 200 } 
+    } 
+  } as any;
+
   return (
     <motion.span variants={container} initial="hidden" animate="visible" className="block">
       {letters.map((letter, index) => (
