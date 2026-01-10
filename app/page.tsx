@@ -72,19 +72,17 @@ const CURRICULUM = {
 // 2. CUSTOM UI COMPONENTS
 // ==========================================
 
-// --- THE LIQUID GLASS BUTTON (NEW) ---
+// --- THE LIQUID GLASS BUTTON ---
 const LiquidButton = ({ children, onClick, className, icon }: any) => {
   return (
     <motion.button
       whileHover={{ scale: 1.05 }}
       whileTap={{ scale: 0.95 }}
       onClick={onClick}
-      className={`relative px-10 py-5 rounded-full font-black text-white text-lg tracking-wide overflow-hidden group ${className}`}
+      className={`relative px-8 py-4 rounded-full font-black text-white text-base tracking-wide overflow-hidden group shadow-lg flex items-center justify-center gap-2 ${className}`}
       style={{
-        // Deep Cyan Glass Gradient
         background: "linear-gradient(135deg, rgba(6,182,212,0.9), rgba(59,130,246,0.8))",
-        // The "Glass Volume" Shadow
-        boxShadow: "0 0 30px rgba(6,182,212,0.6), inset 0 2px 0 rgba(255,255,255,0.4), inset 0 -2px 0 rgba(0,0,0,0.2)"
+        boxShadow: "0 0 20px rgba(6,182,212,0.5), inset 0 2px 0 rgba(255,255,255,0.4), inset 0 -2px 0 rgba(0,0,0,0.2)"
       }}
     >
       {/* Moving Liquid Shine */}
@@ -100,11 +98,11 @@ const LiquidButton = ({ children, onClick, className, icon }: any) => {
         />
       </div>
 
-      {/* Top Glass Reflection (The "Capsule" look) */}
+      {/* Top Glass Reflection */}
       <div className="absolute inset-x-2 top-0 h-1/2 bg-gradient-to-b from-white/30 to-transparent pointer-events-none rounded-full blur-[1px]"></div>
       
       {/* Content */}
-      <span className="relative z-10 flex items-center gap-2 drop-shadow-md uppercase">
+      <span className="relative z-10 flex items-center justify-center gap-2 drop-shadow-md uppercase">
         {icon} {children}
       </span>
     </motion.button>
@@ -637,21 +635,17 @@ export default function ASPICoachingWebsite() {
             <ComparisonTable />
           </ScrollReveal>
 
-          <div className="flex flex-col gap-8">
-            <div className="grid grid-cols-2 gap-4">
-               <div className="p-4 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-white/30 dark:border-white/10 shadow-sm flex items-start gap-3 backdrop-blur-md">
-                 <div className="p-2 rounded-lg bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400"><Snowflake size={20} /></div>
-                 <div><h4 className="font-bold text-slate-900 dark:text-white text-sm">AC Classrooms</h4><p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Fully ventilated.</p></div>
-               </div>
-               <div className="p-4 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-white/30 dark:border-white/10 shadow-sm flex items-start gap-3 backdrop-blur-md">
-                 <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"><History size={20} /></div>
-                 <div><h4 className="font-bold text-slate-900 dark:text-white text-sm">Backup Classes</h4><p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Missed a topic? Covered.</p></div>
-               </div>
-            </div>
-            <TiltCard className="relative w-full aspect-video rounded-[2.5rem] border-[8px] border-white dark:border-slate-900 bg-black shadow-2xl overflow-hidden group">
-              <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"><source src={CONFIG.videoFile} type="video/mp4" /></video>
+          <div className="flex justify-center lg:justify-end">
+            <TiltCard className="relative w-[300px] md:w-[320px] aspect-[9/16] rounded-[2.5rem] border-[8px] border-white dark:border-slate-900 bg-black shadow-2xl overflow-hidden group z-20">
+              {/* Phone Notch */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-black rounded-b-3xl z-20"></div>
+              <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity">
+                <source src={CONFIG.videoFile} type="video/mp4" />
+              </video>
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
-              <div className="absolute bottom-6 left-6 right-6 z-10"><p className="text-white/90 text-xs font-bold">@amit_saxena_physics</p></div>
+              <div className="absolute bottom-6 left-6 right-6 z-10">
+                 <p className="text-white/90 text-xs font-bold">@amit_saxena_physics</p>
+              </div>
             </TiltCard>
           </div>
         </div>
@@ -766,7 +760,7 @@ export default function ASPICoachingWebsite() {
            </div>
            <div className="text-center md:text-right">
              <p className="text-white font-bold mb-1">+91 98270-67941</p>
-             <p className="flex items-center gap-2 justify-center md:justify-end"><MapPin size={14}/> Freeganj, Ujjain</p>
+             <p className="flex items-center gap-2 justify-center md:justify-end"><MapPin size={14}/> Near Lunger Petrol Pump, Dewas Road, Freeganj, Ujjain</p>
            </div>
         </div>
       </footer>
@@ -967,12 +961,14 @@ const CourseCardModern = ({ title, subtitle, badge, accentColor, icon, features,
             </li>
           ))}
         </ul>
-        <button 
+        
+        {/* LIQUID BUTTON REPLACED HERE */}
+        <LiquidButton 
           onClick={onEnroll} 
-          className={`w-full py-4 rounded-xl font-bold text-white bg-slate-800 hover:bg-slate-700 border border-white/5 transition-all mt-auto flex items-center justify-center gap-2 group`}
+          className="w-full mt-auto"
         >
-          Join Batch <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform"/>
-        </button>
+          Join Batch <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform inline-block"/>
+        </LiquidButton>
       </motion.div>
     </ScrollReveal>
   )
@@ -1030,7 +1026,7 @@ const EnrollmentForm = ({ waNumber }: { waNumber: string }) => {
       
       {/* NEW LIQUID BUTTON IN FORM */}
       <LiquidButton type="submit" className="w-full flex justify-center mt-4" icon={<Send size={18} />}>
-        Start Application
+        Join Now
       </LiquidButton>
     </form>
   );
