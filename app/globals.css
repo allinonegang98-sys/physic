@@ -2,26 +2,25 @@
 @tailwind components;
 @tailwind utilities;
 
-/* 1. Global Smooth Scrolling & Padding for Navbar */
 html {
   scroll-behavior: smooth;
-  scroll-padding-top: 100px; /* Prevents navbar from covering titles */
+  scroll-padding-top: 100px;
 }
 
-/* 2. Theme Variables */
 :root {
   --background: #ffffff;
   --foreground: #020617;
 }
 
 .dark {
-  --background: #020617;
+  /* Slightly transparent black to let the liquid background show */
+  --background: rgba(2, 6, 23, 0.85); 
   --foreground: #ffffff;
 }
 
-/* 3. Body Styling */
 body {
   color: var(--foreground);
   background: var(--background);
   transition: background-color 0.3s ease, color 0.3s ease;
+  overflow-x: hidden; /* Prevents scrollbar from animated blobs */
 }

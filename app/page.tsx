@@ -9,7 +9,7 @@ import {
   Menu, X, Phone, CheckCircle, ArrowRight, Zap, 
   BookOpen, TrendingUp, Send, User, Book, MapPin, 
   Sparkles, Trophy, Sun, Moon, Calendar, Clock,
-  Snowflake, History 
+  Snowflake, History, ZoomIn
 } from "lucide-react";
 
 // ==========================================
@@ -37,6 +37,45 @@ const IMAGES = {
 // 2. HELPER COMPONENTS
 // ==========================================
 
+// --- LIQUID BACKGROUND (THE APPLE EFFECT) ---
+const LiquidBackground = () => {
+  return (
+    <div className="fixed inset-0 -z-50 overflow-hidden pointer-events-none">
+       {/* Blob 1: Cyan/Blue */}
+       <motion.div 
+         animate={{ 
+           x: [0, 100, -50, 0], 
+           y: [0, -50, 50, 0],
+           scale: [1, 1.2, 0.9, 1] 
+         }} 
+         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+         className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-cyan-500/30 dark:bg-cyan-500/20 rounded-full blur-[120px] mix-blend-multiply dark:mix-blend-screen" 
+       />
+       
+       {/* Blob 2: Purple/Violet */}
+       <motion.div 
+         animate={{ 
+           x: [0, -70, 30, 0], 
+           y: [0, 80, -40, 0],
+           scale: [1, 1.1, 1] 
+         }} 
+         transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
+         className="absolute top-[20%] right-[-10%] w-[600px] h-[600px] bg-violet-500/30 dark:bg-violet-600/20 rounded-full blur-[140px] mix-blend-multiply dark:mix-blend-screen" 
+       />
+
+       {/* Blob 3: Blue/Indigo (Bottom) */}
+       <motion.div 
+         animate={{ 
+           x: [0, 60, -60, 0], 
+           y: [0, -30, 30, 0],
+         }} 
+         transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
+         className="absolute bottom-[-10%] left-[20%] w-[500px] h-[500px] bg-blue-500/30 dark:bg-blue-600/20 rounded-full blur-[130px] mix-blend-multiply dark:mix-blend-screen" 
+       />
+    </div>
+  );
+};
+
 // --- IMAGE LIGHTBOX MODAL ---
 const ImageModal = ({ src, onClose }: { src: string | null, onClose: () => void }) => {
   if (!src) return null;
@@ -48,7 +87,7 @@ const ImageModal = ({ src, onClose }: { src: string | null, onClose: () => void 
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={onClose}
-          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 cursor-zoom-out"
+          className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-xl flex items-center justify-center p-4 cursor-zoom-out"
         >
           <motion.img
             initial={{ scale: 0.8, opacity: 0 }}
@@ -56,12 +95,12 @@ const ImageModal = ({ src, onClose }: { src: string | null, onClose: () => void 
             exit={{ scale: 0.8, opacity: 0 }}
             transition={{ type: "spring", damping: 25, stiffness: 300 }}
             src={src}
-            className="max-w-full max-h-full object-contain rounded-lg shadow-2xl pointer-events-none select-none"
+            className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl pointer-events-none select-none border border-white/10"
             alt="Full view"
           />
           <button 
             onClick={onClose} 
-            className="absolute top-6 right-6 text-white p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all border border-white/10"
+            className="absolute top-6 right-6 text-white p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all border border-white/10 backdrop-blur-md"
           >
             <X size={24} />
           </button>
@@ -95,7 +134,7 @@ const ThemeToggle = () => {
   return (
     <button 
       onClick={toggleTheme} 
-      className="p-2 rounded-full bg-white/10 dark:bg-white/5 text-slate-800 dark:text-white hover:bg-white/20 transition-all border border-white/10 shadow-sm backdrop-blur-md"
+      className="p-2 rounded-full bg-white/30 dark:bg-white/10 text-slate-800 dark:text-white hover:bg-white/40 transition-all border border-white/20 shadow-sm backdrop-blur-lg"
       aria-label="Toggle Theme"
     >
       <AnimatePresence mode="wait" initial={false}>
@@ -136,9 +175,9 @@ const CountdownTimer = ({ targetDate }: { targetDate: string }) => {
   return (
     <div className="flex gap-3 md:gap-4 my-8">
       {Object.entries(timeLeft).map(([unit, value]) => (
-        <div key={unit} className="flex flex-col items-center bg-white/50 dark:bg-slate-800/50 backdrop-blur-sm border border-slate-200 dark:border-white/10 p-3 rounded-xl min-w-[70px] shadow-sm">
+        <div key={unit} className="flex flex-col items-center bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border border-white/20 p-3 rounded-2xl min-w-[70px] shadow-lg">
           <span className="text-2xl font-bold text-slate-900 dark:text-white">{String(value).padStart(2, '0')}</span>
-          <span className="text-[10px] uppercase text-slate-500 dark:text-slate-400 font-bold">{unit}</span>
+          <span className="text-[10px] uppercase text-slate-600 dark:text-slate-400 font-bold">{unit}</span>
         </div>
       ))}
     </div>
@@ -201,14 +240,14 @@ const FloatingNotification = () => {
           initial={{ opacity: 0, x: -100 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -100 }}
-          className="fixed bottom-24 left-6 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200 dark:border-cyan-500/30 p-4 rounded-2xl shadow-xl flex items-center gap-3 max-w-[300px]"
+          className="fixed bottom-24 left-6 z-40 bg-white/70 dark:bg-slate-900/60 backdrop-blur-2xl border border-white/20 p-4 rounded-2xl shadow-xl flex items-center gap-3 max-w-[300px]"
         >
-          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-500 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-500 flex items-center justify-center shadow-lg">
             <User className="text-white w-5 h-5" />
           </div>
           <div>
             <p className="text-slate-900 dark:text-white text-xs font-bold">New Student Enrolled!</p>
-            <p className="text-slate-500 dark:text-slate-400 text-[10px]">Just now • 11th Class Physics</p>
+            <p className="text-slate-600 dark:text-slate-400 text-[10px]">Just now • 11th Class Physics</p>
           </div>
         </motion.div>
       )}
@@ -237,26 +276,29 @@ export default function ASPICoachingWebsite() {
   };
 
   return (
-    <div className={`min-h-screen font-sans overflow-x-hidden transition-colors duration-300 bg-slate-50 text-slate-900 dark:bg-[#020617] dark:text-slate-100 selection:bg-cyan-500 selection:text-white`}>
+    <div className={`min-h-screen font-sans overflow-x-hidden text-slate-900 dark:text-slate-100 selection:bg-cyan-500 selection:text-white`}>
       
-      {/* --- PREMIUM GLASS NAVBAR --- */}
+      {/* GLOBAL LIQUID BACKGROUND */}
+      <LiquidBackground />
+
+      {/* --- SUPER GLASS NAVBAR (iOS STYLE) --- */}
       <motion.nav 
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/60 dark:bg-[#020617]/60 backdrop-blur-md border-b border-white/20 dark:border-white/5 py-3 shadow-sm" : "bg-transparent py-6"}`}
+        className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/40 dark:bg-slate-900/40 backdrop-blur-2xl border-b border-white/20 shadow-sm saturate-150 py-3" : "bg-transparent py-6"}`}
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="relative">
-              <div className="absolute inset-0 bg-cyan-500 blur rounded-full opacity-20 dark:opacity-50"></div>
+              <div className="absolute inset-0 bg-cyan-500 blur rounded-full opacity-40"></div>
               <img src={IMAGES.logo} alt="ASPI Logo" className="relative w-10 h-10 object-contain bg-white rounded-full p-0.5" />
             </div>
             <div className="leading-tight font-bold text-slate-900 dark:text-white tracking-tight">
-              ASPI <span className="text-cyan-500">.</span>
+              ASPI <span className="text-cyan-600 dark:text-cyan-400">.</span>
             </div>
           </div>
 
-          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-600 dark:text-slate-300">
+          <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-700 dark:text-slate-200">
             {["Home", "Results", "Courses", "Gallery"].map((item) => (
               <a key={item} href={`#${item.toLowerCase()}`} className="hover:text-cyan-500 transition-colors relative group">
                 {item}
@@ -267,7 +309,7 @@ export default function ASPICoachingWebsite() {
           
           <div className="hidden md:flex items-center gap-4">
              <ThemeToggle />
-             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => openWhatsApp("Hello Sir, I want to book a demo class.")} className="px-6 py-2.5 bg-cyan-500 text-white dark:text-black rounded-full font-bold text-sm shadow-lg hover:bg-cyan-600 dark:hover:bg-cyan-400 transition-colors">
+             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => openWhatsApp("Hello Sir, I want to book a demo class.")} className="px-6 py-2.5 bg-cyan-500 text-white dark:text-black rounded-full font-bold text-sm shadow-lg shadow-cyan-500/30 hover:bg-cyan-600 dark:hover:bg-cyan-400 transition-colors border border-white/10">
                Book Demo
              </motion.button>
           </div>
@@ -281,9 +323,9 @@ export default function ASPICoachingWebsite() {
         </div>
 
         {mobileMenuOpen && (
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="absolute top-full left-0 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-b border-slate-200 dark:border-white/10 shadow-xl p-6 flex flex-col gap-4 md:hidden">
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="absolute top-full left-0 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-3xl border-b border-white/20 shadow-xl p-6 flex flex-col gap-4 md:hidden">
             {["Home", "Results", "Courses", "Gallery", "Enroll"].map((item) => (
-              <a key={item} href={`#${item.toLowerCase()}`} onClick={() => setMobileMenuOpen(false)} className="text-slate-600 dark:text-slate-300 font-medium py-2 border-b border-slate-100 dark:border-white/5 hover:text-cyan-500">
+              <a key={item} href={`#${item.toLowerCase()}`} onClick={() => setMobileMenuOpen(false)} className="text-slate-800 dark:text-slate-200 font-medium py-2 border-b border-slate-200 dark:border-white/10 hover:text-cyan-500">
                 {item}
               </a>
             ))}
@@ -292,25 +334,20 @@ export default function ASPICoachingWebsite() {
       </motion.nav>
 
       {/* --- HERO SECTION --- */}
-      <section id="home" className="relative min-h-screen flex items-center pt-32 pb-24 lg:pt-0 overflow-hidden bg-slate-50 dark:bg-[#020617] transition-colors duration-300">
-        <div className="absolute inset-0 overflow-hidden pointer-events-none">
-           <motion.div animate={{ scale: [1, 1.2, 1], x: [0, 50, 0] }} transition={{ duration: 10, repeat: Infinity }} className="absolute top-0 right-0 w-[500px] h-[500px] bg-cyan-500/10 rounded-full blur-[120px]" />
-           <motion.div animate={{ scale: [1, 1.5, 1], x: [0, -50, 0] }} transition={{ duration: 15, repeat: Infinity }} className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-violet-600/10 rounded-full blur-[150px]" />
-        </div>
-
+      <section id="home" className="relative min-h-screen flex items-center pt-32 pb-24 lg:pt-0">
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center relative z-10">
           <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="pt-8 order-2 lg:order-1">
-            <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white border border-slate-200 shadow-sm dark:bg-cyan-950/30 dark:border-cyan-500/30 dark:shadow-none backdrop-blur-md mb-8">
+            <motion.div variants={fadeInUp} className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-white/40 dark:bg-white/5 border border-white/20 shadow-sm backdrop-blur-md mb-8">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-500 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-cyan-500"></span>
               </span>
-              <span className="text-cyan-600 dark:text-cyan-400 text-[10px] font-black uppercase tracking-[0.2em]">#1 Physics Institute</span>
+              <span className="text-cyan-700 dark:text-cyan-300 text-[10px] font-black uppercase tracking-[0.2em]">#1 Physics Institute</span>
             </motion.div>
             
-            <h1 className="text-5xl lg:text-7xl font-black text-slate-900 dark:text-white leading-[1.0] mb-6 tracking-tight">
+            <h1 className="text-5xl lg:text-7xl font-black text-slate-900 dark:text-white leading-[1.0] mb-6 tracking-tight drop-shadow-sm">
               MASTER <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-500 via-blue-600 to-purple-600 animate-gradient">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 animate-gradient">
                 PHYSICS WITH
               </span> <br />
               <span className="text-cyan-500">
@@ -318,12 +355,12 @@ export default function ASPICoachingWebsite() {
               </span>
             </h1>
             
-            <motion.p variants={fadeInUp} className="text-lg text-slate-600 dark:text-slate-400 mb-6 max-w-lg leading-relaxed font-medium">
+            <motion.p variants={fadeInUp} className="text-lg text-slate-700 dark:text-slate-300 mb-6 max-w-lg leading-relaxed font-medium">
               Forget boring lectures. Experience Physics with <strong>visualizations</strong>, <strong>experiments</strong>, and <strong>high-energy</strong> classes.
             </motion.p>
             
             <motion.div variants={fadeInUp}>
-              <p className="text-xs font-bold text-slate-500 dark:text-slate-500 uppercase tracking-widest flex items-center gap-2">
+              <p className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest flex items-center gap-2">
                 <Clock size={14} /> New Batch Starting In:
               </p>
               <CountdownTimer targetDate={CONFIG.targetDate} />
@@ -334,26 +371,27 @@ export default function ASPICoachingWebsite() {
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={() => document.getElementById('enroll')?.scrollIntoView({ behavior: 'smooth' })} 
-                className="px-8 py-4 bg-cyan-500 text-white dark:text-black rounded-xl font-black shadow-lg shadow-cyan-500/20 flex items-center gap-2"
+                className="px-8 py-4 bg-cyan-500 text-white dark:text-black rounded-xl font-black shadow-lg shadow-cyan-500/30 flex items-center gap-2 border border-white/10"
               >
                 <Zap size={20} className="fill-current"/> JOIN THE SQUAD
               </motion.button>
               <motion.a 
                 whileHover={{ scale: 1.05 }}
                 href="#courses" 
-                className="px-8 py-4 bg-white dark:bg-white/5 text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 rounded-xl font-bold hover:bg-slate-50 dark:hover:bg-white/10 flex items-center gap-2 shadow-sm dark:shadow-none"
+                className="px-8 py-4 bg-white/40 dark:bg-white/10 text-slate-900 dark:text-white border border-white/20 rounded-xl font-bold hover:bg-white/50 dark:hover:bg-white/20 flex items-center gap-2 shadow-sm backdrop-blur-md"
               >
                 View Batches <ArrowRight size={18}/>
               </motion.a>
             </motion.div>
           </motion.div>
 
+          {/* HERO IMAGE */}
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, type: "spring" }} className="relative flex justify-center perspective-1000 mt-10 lg:mt-0 order-1 lg:order-2">
-             <TiltCard className="w-full max-w-md aspect-[4/5] rounded-[2rem] overflow-hidden border-4 border-white dark:border-white/5 shadow-2xl dark:shadow-[0_0_50px_-15px_rgba(6,182,212,0.3)] bg-white dark:bg-slate-900 relative group cursor-zoom-in">
+             <TiltCard className="w-full max-w-md aspect-[4/5] rounded-[2rem] overflow-hidden border-4 border-white/40 dark:border-white/10 shadow-2xl dark:shadow-[0_0_60px_-15px_rgba(6,182,212,0.4)] bg-white/20 dark:bg-slate-900/40 backdrop-blur-xl relative group cursor-zoom-in">
                <div onClick={() => setSelectedImage(IMAGES.heroMain)}>
                  <img src={IMAGES.heroMain} alt="Amit Saxena" className="w-full h-full object-cover scale-105 group-hover:scale-110 transition-transform duration-700 filter saturate-100 contrast-110" />
                </div>
-               <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-90 pointer-events-none"></div>
+               <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent opacity-90 pointer-events-none"></div>
                <div className="absolute bottom-8 left-8 right-8 pointer-events-none">
                   <div className="inline-block px-3 py-1 rounded-md bg-cyan-500 text-white dark:text-black text-[10px] font-black mb-3 shadow-lg tracking-wider">DIRECTOR</div>
                   <h3 className="text-3xl font-black text-white mb-1">Amit Saxena</h3>
@@ -364,20 +402,19 @@ export default function ASPICoachingWebsite() {
         </div>
       </section>
 
-      {/* --- RESULTS SECTION (SWIPE SLIDER + CLICK) --- */}
-      <section id="results" className="py-24 bg-white dark:bg-[#020617] relative overflow-hidden transition-colors duration-300">
+      {/* --- RESULTS SECTION --- */}
+      <section id="results" className="py-24 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <ScrollReveal>
             <div className="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
               <div>
-                <h2 className="text-4xl lg:text-5xl font-black text-slate-900 dark:text-white mb-2">
+                <h2 className="text-4xl lg:text-5xl font-black text-slate-900 dark:text-white mb-2 drop-shadow-sm">
                   HALL OF <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-orange-500">FAME</span>
                 </h2>
                 <p className="text-slate-600 dark:text-slate-400">Swipe to see our champions. Click to zoom.</p>
               </div>
             </div>
           </ScrollReveal>
-          {/* Slider with FIX for Swipe vs Click */}
           <ResultSlider 
             images={[ IMAGES.results2025, IMAGES.results11th, IMAGES.toppers2024, IMAGES.groupPhoto ]} 
             onImageClick={setSelectedImage}
@@ -386,38 +423,38 @@ export default function ASPICoachingWebsite() {
       </section>
 
       {/* --- VIDEO & FEATURES SECTION --- */}
-      <section className="py-24 bg-slate-100 dark:bg-slate-950/50 overflow-hidden relative transition-colors duration-300">
+      <section className="py-24 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center relative z-10">
           <ScrollReveal>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-violet-500/30 text-violet-600 dark:text-violet-400 text-xs font-bold uppercase tracking-wider mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-violet-500/30 text-violet-600 dark:text-violet-400 text-xs font-bold uppercase tracking-wider mb-6 bg-violet-100/50 dark:bg-violet-900/20 backdrop-blur-sm">
               <Sparkles size={12} /> The Experience
             </div>
-            <h2 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white mb-6 tracking-tight">
+            <h2 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white mb-6 tracking-tight drop-shadow-sm">
               NOT YOUR <br/>
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-fuchsia-500">TYPICAL CLASS</span>
             </h2>
-            <p className="text-slate-600 dark:text-slate-400 text-lg mb-8 leading-relaxed">
+            <p className="text-slate-600 dark:text-slate-300 text-lg mb-8 leading-relaxed">
               We don't just write on the board. We visualize, we simulate, and we solve. Check out the energy inside the classroom.
             </p>
 
             <div className="grid grid-cols-2 gap-4">
-               <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 shadow-sm flex items-start gap-3">
+               <div className="p-4 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-white/30 dark:border-white/10 shadow-sm flex items-start gap-3 backdrop-blur-md">
                  <div className="p-2 rounded-lg bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400">
                     <Snowflake size={20} />
                  </div>
                  <div>
                     <h4 className="font-bold text-slate-900 dark:text-white text-sm">AC Classrooms</h4>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Fully ventilated & comfortable environment.</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Fully ventilated & comfortable environment.</p>
                  </div>
                </div>
 
-               <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 shadow-sm flex items-start gap-3">
+               <div className="p-4 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-white/30 dark:border-white/10 shadow-sm flex items-start gap-3 backdrop-blur-md">
                  <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
                     <History size={20} />
                  </div>
                  <div>
                     <h4 className="font-bold text-slate-900 dark:text-white text-sm">Backup Classes</h4>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Missed a topic? We cover it up for you.</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Missed a topic? We cover it up for you.</p>
                  </div>
                </div>
             </div>
@@ -438,15 +475,15 @@ export default function ASPICoachingWebsite() {
         </div>
       </section>
 
-      {/* --- GALLERY SECTION (CLICKABLE) --- */}
-      <section id="gallery" className="py-24 bg-white dark:bg-[#020617] relative transition-colors duration-300">
+      {/* --- GALLERY SECTION --- */}
+      <section id="gallery" className="py-24 relative transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-4">LIFE AT <span className="text-cyan-500">ASPI</span></h2>
+            <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-4 drop-shadow-sm">LIFE AT <span className="text-cyan-500">ASPI</span></h2>
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 grid-rows-2 gap-4 h-[600px]">
             <ScrollReveal className="col-span-2 row-span-2 h-full">
-              <div className="w-full h-full rounded-3xl overflow-hidden relative group cursor-zoom-in" onClick={() => setSelectedImage(IMAGES.groupPhoto)}>
+              <div className="w-full h-full rounded-3xl overflow-hidden relative group cursor-zoom-in shadow-lg border border-white/10" onClick={() => setSelectedImage(IMAGES.groupPhoto)}>
                 <img src={IMAGES.groupPhoto} alt="Group" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0" />
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-6 pointer-events-none">
                    <h3 className="text-xl font-bold text-white">Celebrations</h3>
@@ -454,21 +491,21 @@ export default function ASPICoachingWebsite() {
               </div>
             </ScrollReveal>
             <ScrollReveal className="col-span-1 row-span-1 h-full">
-              <div className="w-full h-full rounded-3xl overflow-hidden relative group bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-white/5 cursor-zoom-in" onClick={() => setSelectedImage(IMAGES.toppers2024)}>
+              <div className="w-full h-full rounded-3xl overflow-hidden relative group bg-white/30 dark:bg-slate-900/40 backdrop-blur-md border border-white/20 cursor-zoom-in" onClick={() => setSelectedImage(IMAGES.toppers2024)}>
                 <img src={IMAGES.toppers2024} alt="Toppers" className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-all" />
               </div>
             </ScrollReveal>
             <ScrollReveal className="col-span-1 row-span-2 h-full">
-              <div className="w-full h-full rounded-3xl overflow-hidden relative group bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-100 dark:border-cyan-500/20 cursor-zoom-in" onClick={() => setSelectedImage(IMAGES.results2025)}>
+              <div className="w-full h-full rounded-3xl overflow-hidden relative group bg-cyan-100/30 dark:bg-cyan-900/20 border border-white/20 cursor-zoom-in backdrop-blur-md" onClick={() => setSelectedImage(IMAGES.results2025)}>
                 <img src={IMAGES.results2025} alt="List" className="w-full h-full object-cover mix-blend-multiply dark:mix-blend-overlay opacity-80" />
                 <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center pointer-events-none">
-                   <Trophy className="text-cyan-600 dark:text-cyan-400 mb-2" size={32} />
+                   <Trophy className="text-cyan-700 dark:text-cyan-400 mb-2" size={32} />
                    <h4 className="font-bold text-cyan-900 dark:text-cyan-100">Consistent Results</h4>
                 </div>
               </div>
             </ScrollReveal>
              <ScrollReveal className="col-span-1 row-span-1 h-full">
-              <div className="w-full h-full rounded-3xl overflow-hidden relative group cursor-zoom-in" onClick={() => setSelectedImage(IMAGES.gallery1)}>
+              <div className="w-full h-full rounded-3xl overflow-hidden relative group cursor-zoom-in shadow-lg border border-white/10" onClick={() => setSelectedImage(IMAGES.gallery1)}>
                 <img src={IMAGES.gallery1} alt="Class" className="w-full h-full object-cover" />
               </div>
             </ScrollReveal>
@@ -477,10 +514,10 @@ export default function ASPICoachingWebsite() {
       </section>
 
       {/* --- COURSES SECTION --- */}
-      <section id="courses" className="py-24 bg-slate-50 dark:bg-slate-950 relative overflow-hidden transition-colors duration-300">
+      <section id="courses" className="py-24 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <div className="text-center mb-16">
-            <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-4">CHOOSE YOUR <span className="text-cyan-500">BATCH</span></h2>
+            <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-4 drop-shadow-sm">CHOOSE YOUR <span className="text-cyan-500">BATCH</span></h2>
           </div>
           <div className="grid md:grid-cols-3 gap-6">
              <CourseCardModern 
@@ -522,10 +559,9 @@ export default function ASPICoachingWebsite() {
 
       {/* --- ENROLLMENT FORM --- */}
       <section id="enroll" className="py-24 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-b from-white to-cyan-50 dark:from-[#020617] dark:to-cyan-950/20"></div>
         <div className="max-w-4xl mx-auto px-6 relative z-10">
           <ScrollReveal>
-            <div className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-xl rounded-[2.5rem] p-8 md:p-12 shadow-2xl border border-slate-200 dark:border-white/10 relative overflow-hidden">
+            <div className="bg-white/60 dark:bg-slate-900/40 backdrop-blur-2xl rounded-[2.5rem] p-8 md:p-12 shadow-2xl border border-white/40 dark:border-white/10 relative overflow-hidden">
               <div className="text-center mb-10 relative z-10">
                 <h2 className="text-3xl font-bold text-slate-900 dark:text-white">Join the Revolution</h2>
                 <p className="text-slate-600 dark:text-slate-400 mt-2">Fill this out. We'll start your journey.</p>
@@ -537,7 +573,7 @@ export default function ASPICoachingWebsite() {
       </section>
 
       {/* --- FOOTER --- */}
-      <footer className="bg-slate-900 text-slate-500 py-12 border-t border-white/10">
+      <footer className="bg-slate-900 text-slate-500 py-12 border-t border-white/10 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-sm">
            <div className="text-center md:text-left">
              <h3 className="text-white font-bold text-lg mb-1 tracking-tight">ASPI Ujjain</h3>
@@ -559,7 +595,7 @@ export default function ASPICoachingWebsite() {
            href={`tel:${CONFIG.waNumber}`} 
            whileHover={{ scale: 1.1 }} 
            whileTap={{ scale: 0.9 }}
-           className="w-14 h-14 bg-white dark:bg-slate-800 text-slate-900 dark:text-white rounded-full flex items-center justify-center shadow-lg font-bold border border-slate-200 dark:border-slate-700"
+           className="w-14 h-14 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md text-slate-900 dark:text-white rounded-full flex items-center justify-center shadow-lg font-bold border border-white/30 dark:border-white/10"
          >
            <Phone size={24} />
          </motion.a>
@@ -567,7 +603,7 @@ export default function ASPICoachingWebsite() {
            onClick={() => document.getElementById('enroll')?.scrollIntoView({ behavior: 'smooth' })} 
            whileHover={{ scale: 1.1 }} 
            whileTap={{ scale: 0.9 }}
-           className="w-14 h-14 bg-cyan-500 rounded-full flex items-center justify-center text-white dark:text-black shadow-lg shadow-cyan-500/30 font-bold border border-white/20"
+           className="w-14 h-14 bg-cyan-500/90 backdrop-blur-md rounded-full flex items-center justify-center text-white dark:text-black shadow-lg shadow-cyan-500/30 font-bold border border-white/20"
          >
            <Calendar size={24} />
          </motion.button>
@@ -578,14 +614,13 @@ export default function ASPICoachingWebsite() {
 }
 
 // ==========================================
-// 4. SUB-COMPONENTS (FIXED FOR SWIPE/TAP)
+// 4. SUB-COMPONENTS
 // ==========================================
 
 const ResultSlider = ({ images, onImageClick }: { images: string[], onImageClick: (src: string) => void }) => {
   const [index, setIndex] = useState(0);
-  const isDragging = useRef(false); // FLAG TO TRACK DRAG STATUS
+  const isDragging = useRef(false);
 
-  // Swipe Logic
   const swipeConfidenceThreshold = 10000;
   const swipePower = (offset: number, velocity: number) => {
     return Math.abs(offset) * velocity;
@@ -601,22 +636,17 @@ const ResultSlider = ({ images, onImageClick }: { images: string[], onImageClick
 
   return (
     <div className="relative w-full max-w-4xl mx-auto aspect-[16/9] md:aspect-[21/9] flex items-center justify-center">
-      {/* Swipe & Tap Area Wrapper */}
       <motion.div
         className="absolute inset-0 z-30 touch-pan-y cursor-grab active:cursor-grabbing"
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
         style={{ opacity: 0 }}
-        
-        // SENSOR LOGIC
-        onDragStart={() => { isDragging.current = true; }} // Set flag on drag start
+        onDragStart={() => { isDragging.current = true; }}
         onTap={() => { 
-          if (!isDragging.current) onImageClick(images[index]); // Only click if not dragging
+          if (!isDragging.current) onImageClick(images[index]);
         }}
         onDragEnd={(e, { offset, velocity }: PanInfo) => {
-           // Wait a tiny bit before resetting drag flag (prevents click firing after drag)
            setTimeout(() => { isDragging.current = false; }, 100);
-
            const swipe = swipePower(offset.x, velocity.x);
            if (swipe < -swipeConfidenceThreshold) {
              paginate(1);
@@ -625,7 +655,6 @@ const ResultSlider = ({ images, onImageClick }: { images: string[], onImageClick
            }
         }}
       />
-
       <div className="relative w-full h-full flex items-center justify-center perspective-1000">
         {images.map((img, i) => {
           const position = (i - index + images.length) % images.length;
@@ -644,17 +673,15 @@ const ResultSlider = ({ images, onImageClick }: { images: string[], onImageClick
               initial={false} 
               animate={{ x, scale, opacity, zIndex }} 
               transition={{ duration: 0.5, type: "spring", stiffness: 100 }} 
-              className="absolute top-0 w-[80%] md:w-[60%] h-full rounded-2xl overflow-hidden border-2 border-slate-200 dark:border-white/10 shadow-2xl bg-white dark:bg-slate-900 pointer-events-none"
+              className="absolute top-0 w-[80%] md:w-[60%] h-full rounded-2xl overflow-hidden border-2 border-white/20 dark:border-white/10 shadow-2xl bg-white/50 dark:bg-slate-900/50 backdrop-blur-sm pointer-events-none"
             >
-              <img src={img} alt={`Result ${i}`} className="w-full h-full object-contain bg-white dark:bg-slate-950" />
+              <img src={img} alt={`Result ${i}`} className="w-full h-full object-contain" />
             </motion.div>
           );
         })}
       </div>
-      
-      {/* Navigation Buttons */}
-      <button onClick={() => paginate(-1)} className="absolute left-0 md:-left-12 z-40 p-3 rounded-full bg-white/80 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 transition-all shadow-md"><ArrowRight className="rotate-180" size={24} /></button>
-      <button onClick={() => paginate(1)} className="absolute right-0 md:-right-12 z-40 p-3 rounded-full bg-white/80 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 text-slate-900 dark:text-white border border-slate-200 dark:border-white/10 transition-all shadow-md"><ArrowRight size={24} /></button>
+      <button onClick={() => paginate(-1)} className="absolute left-0 md:-left-12 z-40 p-3 rounded-full bg-white/70 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 text-slate-900 dark:text-white border border-white/20 dark:border-white/10 transition-all shadow-md backdrop-blur-sm"><ArrowRight className="rotate-180" size={24} /></button>
+      <button onClick={() => paginate(1)} className="absolute right-0 md:-right-12 z-40 p-3 rounded-full bg-white/70 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 text-slate-900 dark:text-white border border-white/20 dark:border-white/10 transition-all shadow-md backdrop-blur-sm"><ArrowRight size={24} /></button>
     </div>
   );
 };
@@ -688,9 +715,9 @@ const ScrollReveal = ({ children, className, delay = 0 }: { children: React.Reac
 
 const CourseCardModern = ({ title, subtitle, badge, accentColor, icon, features, highlighted, onEnroll, delay }: any) => {
   const colors: any = {
-    blue: { border: "border-blue-500/30", text: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-500/5", glow: "shadow-blue-500/20" },
-    cyan: { border: "border-cyan-500/50", text: "text-cyan-600 dark:text-cyan-400", bg: "bg-cyan-50 dark:bg-cyan-500/10", glow: "shadow-cyan-500/30" },
-    purple: { border: "border-purple-500/30", text: "text-purple-600 dark:text-purple-400", bg: "bg-purple-50 dark:bg-purple-500/5", glow: "shadow-purple-500/20" },
+    blue: { border: "border-blue-500/30", text: "text-blue-600 dark:text-blue-400", bg: "bg-blue-100/50 dark:bg-blue-500/10", glow: "shadow-blue-500/20" },
+    cyan: { border: "border-cyan-500/50", text: "text-cyan-600 dark:text-cyan-400", bg: "bg-cyan-100/50 dark:bg-cyan-500/10", glow: "shadow-cyan-500/30" },
+    purple: { border: "border-purple-500/30", text: "text-purple-600 dark:text-purple-400", bg: "bg-purple-100/50 dark:bg-purple-500/10", glow: "shadow-purple-500/20" },
   };
   const c = colors[accentColor];
   return (
