@@ -69,8 +69,47 @@ const CURRICULUM = {
 };
 
 // ==========================================
-// 2. HELPER COMPONENTS
+// 2. CUSTOM UI COMPONENTS
 // ==========================================
+
+// --- THE LIQUID GLASS BUTTON (NEW) ---
+const LiquidButton = ({ children, onClick, className, icon }: any) => {
+  return (
+    <motion.button
+      whileHover={{ scale: 1.05 }}
+      whileTap={{ scale: 0.95 }}
+      onClick={onClick}
+      className={`relative px-10 py-5 rounded-full font-black text-white text-lg tracking-wide overflow-hidden group ${className}`}
+      style={{
+        // Deep Cyan Glass Gradient
+        background: "linear-gradient(135deg, rgba(6,182,212,0.9), rgba(59,130,246,0.8))",
+        // The "Glass Volume" Shadow
+        boxShadow: "0 0 30px rgba(6,182,212,0.6), inset 0 2px 0 rgba(255,255,255,0.4), inset 0 -2px 0 rgba(0,0,0,0.2)"
+      }}
+    >
+      {/* Moving Liquid Shine */}
+      <div className="absolute inset-0 opacity-30 group-hover:opacity-50 transition-opacity">
+        <motion.div
+          animate={{ x: ["-100%", "100%"] }}
+          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
+          className="w-full h-full absolute top-0 left-0"
+          style={{
+            background: "linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent)",
+            transform: "skewX(-20deg)"
+          }}
+        />
+      </div>
+
+      {/* Top Glass Reflection (The "Capsule" look) */}
+      <div className="absolute inset-x-2 top-0 h-1/2 bg-gradient-to-b from-white/30 to-transparent pointer-events-none rounded-full blur-[1px]"></div>
+      
+      {/* Content */}
+      <span className="relative z-10 flex items-center gap-2 drop-shadow-md uppercase">
+        {icon} {children}
+      </span>
+    </motion.button>
+  );
+};
 
 // --- FLIP CLOCK COMPONENT ---
 const FlipUnit = ({ value, label }: { value: number, label: string }) => {
@@ -512,18 +551,19 @@ export default function ASPICoachingWebsite() {
             </motion.div>
 
             <motion.div variants={fadeInUp} className="flex flex-wrap gap-4 mt-6">
-              <motion.button 
-                whileHover={{ scale: 1.05 }} 
-                whileTap={{ scale: 0.95 }} 
-                onClick={() => document.getElementById('enroll')?.scrollIntoView({ behavior: 'smooth' })} 
-                className="px-8 py-4 bg-cyan-500 text-white dark:text-black rounded-xl font-black shadow-lg shadow-cyan-500/30 flex items-center gap-2 border border-white/10"
+              
+              {/* LIQUID GLASS BUTTON */}
+              <LiquidButton 
+                onClick={() => document.getElementById('enroll')?.scrollIntoView({ behavior: 'smooth' })}
+                icon={<Zap size={20} className="fill-current text-yellow-300"/>}
               >
-                <Zap size={20} className="fill-current"/> JOIN THE SQUAD
-              </motion.button>
+                JOIN THE SQUAD
+              </LiquidButton>
+
               <motion.a 
                 whileHover={{ scale: 1.05 }} 
                 href="#courses" 
-                className="px-8 py-4 bg-white/40 dark:bg-white/10 text-slate-900 dark:text-white border border-white/20 rounded-xl font-bold hover:bg-white/50 dark:hover:bg-white/20 flex items-center gap-2 shadow-sm backdrop-blur-md"
+                className="px-8 py-4 bg-white/40 dark:bg-white/10 text-slate-900 dark:text-white border border-white/20 rounded-full font-bold hover:bg-white/50 dark:hover:bg-white/20 flex items-center gap-2 shadow-sm backdrop-blur-md"
               >
                 View Batches <ArrowRight size={18}/>
               </motion.a>
@@ -597,17 +637,21 @@ export default function ASPICoachingWebsite() {
             <ComparisonTable />
           </ScrollReveal>
 
-          <div className="flex justify-center lg:justify-end">
-            <TiltCard className="relative w-[300px] md:w-[320px] aspect-[9/16] rounded-[2.5rem] border-[8px] border-white dark:border-slate-900 bg-black shadow-2xl overflow-hidden group z-20">
-              {/* Phone Notch */}
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-black rounded-b-3xl z-20"></div>
-              <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity">
-                <source src={CONFIG.videoFile} type="video/mp4" />
-              </video>
+          <div className="flex flex-col gap-8">
+            <div className="grid grid-cols-2 gap-4">
+               <div className="p-4 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-white/30 dark:border-white/10 shadow-sm flex items-start gap-3 backdrop-blur-md">
+                 <div className="p-2 rounded-lg bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400"><Snowflake size={20} /></div>
+                 <div><h4 className="font-bold text-slate-900 dark:text-white text-sm">AC Classrooms</h4><p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Fully ventilated.</p></div>
+               </div>
+               <div className="p-4 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-white/30 dark:border-white/10 shadow-sm flex items-start gap-3 backdrop-blur-md">
+                 <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400"><History size={20} /></div>
+                 <div><h4 className="font-bold text-slate-900 dark:text-white text-sm">Backup Classes</h4><p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Missed a topic? Covered.</p></div>
+               </div>
+            </div>
+            <TiltCard className="relative w-full aspect-video rounded-[2.5rem] border-[8px] border-white dark:border-slate-900 bg-black shadow-2xl overflow-hidden group">
+              <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"><source src={CONFIG.videoFile} type="video/mp4" /></video>
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent pointer-events-none"></div>
-              <div className="absolute bottom-6 left-6 right-6 z-10">
-                 <p className="text-white/90 text-xs font-bold">@amit_saxena_physics</p>
-              </div>
+              <div className="absolute bottom-6 left-6 right-6 z-10"><p className="text-white/90 text-xs font-bold">@amit_saxena_physics</p></div>
             </TiltCard>
           </div>
         </div>
@@ -983,9 +1027,11 @@ const EnrollmentForm = ({ waNumber }: { waNumber: string }) => {
           <label className="text-xs font-bold text-slate-500 uppercase ml-1">City</label>
           <input type="text" placeholder="Ujjain" className="w-full px-4 py-3 bg-white dark:bg-slate-950/50 border border-slate-200 dark:border-slate-700/50 rounded-xl focus:ring-1 focus:ring-cyan-500 outline-none text-slate-900 dark:text-white placeholder:text-slate-400 transition-all font-medium" onChange={e => setFormData({...formData, city: e.target.value})} />
       </div>
-      <button type="submit" className="w-full py-4 bg-gradient-to-r from-cyan-600 to-blue-600 hover:from-cyan-500 hover:to-blue-500 text-white font-bold rounded-xl shadow-lg transition-all flex items-center justify-center gap-2 mt-2">
-        <Send size={18} /> Start Application
-      </button>
+      
+      {/* NEW LIQUID BUTTON IN FORM */}
+      <LiquidButton type="submit" className="w-full flex justify-center mt-4" icon={<Send size={18} />}>
+        Start Application
+      </LiquidButton>
     </form>
   );
 }
