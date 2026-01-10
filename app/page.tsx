@@ -3,14 +3,15 @@
 import React, { useState, useEffect, useRef } from "react";
 import { 
   motion, useScroll, useTransform, useInView, useSpring, useMotionValue, 
-  AnimatePresence, PanInfo 
+  AnimatePresence, PanInfo, animate 
 } from "framer-motion";
 import { 
   Menu, X, Phone, CheckCircle, ArrowRight, Zap, 
   BookOpen, TrendingUp, Send, User, Book, MapPin, 
   Sparkles, Trophy, Sun, Moon, Calendar, Clock,
-  Snowflake, History, ZoomIn
+  Snowflake, History 
 } from "lucide-react";
+import confetti from "canvas-confetti"; // Requires: npm install canvas-confetti @types/canvas-confetti
 
 // ==========================================
 // 1. CONFIGURATION & IMAGES
@@ -36,6 +37,74 @@ const IMAGES = {
 // ==========================================
 // 2. HELPER COMPONENTS
 // ==========================================
+
+// --- ANIMATED NUMBER COUNTER ---
+const Counter = ({ from, to, suffix = "" }: { from: number; to: number; suffix?: string }) => {
+  const nodeRef = useRef<HTMLDivElement>(null);
+  const isInView = useInView(nodeRef, { once: true, margin: "-50px" });
+
+  useEffect(() => {
+    if (isInView) {
+      const controls = animate(from, to, {
+        duration: 2.5,
+        ease: "easeOut",
+        onUpdate(value) {
+          if (nodeRef.current) {
+            nodeRef.current.textContent = value.toFixed(0) + suffix;
+          }
+        },
+      });
+      return () => controls.stop();
+    }
+  }, [from, to, isInView, suffix]);
+
+  return <div ref={nodeRef} className="text-2xl font-black text-slate-900 dark:text-white" />;
+};
+
+// --- FLOATING PHYSICS PARTICLES ---
+const PhysicsBackground = () => {
+  const symbols = ["α", "β", "Ω", "π", "Σ", "λ", "Δ", "μ", "ħ", "∫"];
+  const [particles, setParticles] = useState<any[]>([]);
+
+  useEffect(() => {
+    // Generate static positions only on client to avoid hydration mismatch
+    const newParticles = symbols.map((sym, i) => ({
+      id: i,
+      sym,
+      left: Math.random() * 100 + "%",
+      top: Math.random() * 100 + "%",
+      duration: 10 + Math.random() * 20,
+      delay: Math.random() * 5,
+    }));
+    setParticles(newParticles);
+  }, []);
+
+  return (
+    <div className="fixed inset-0 z-0 overflow-hidden pointer-events-none select-none">
+      {particles.map((p) => (
+        <motion.div
+          key={p.id}
+          initial={{ y: 0, opacity: 0 }}
+          animate={{ 
+            y: [0, -100, 0], 
+            opacity: [0, 0.4, 0],
+            rotate: [0, 360]
+          }}
+          transition={{
+            duration: p.duration,
+            repeat: Infinity,
+            delay: p.delay,
+            ease: "linear"
+          }}
+          style={{ left: p.left, top: p.top }}
+          className="absolute text-2xl font-serif text-slate-400/20 dark:text-white/10"
+        >
+          {p.sym}
+        </motion.div>
+      ))}
+    </div>
+  );
+};
 
 // --- LIQUID BACKGROUND (THE APPLE EFFECT) ---
 const LiquidBackground = () => {
@@ -278,8 +347,9 @@ export default function ASPICoachingWebsite() {
   return (
     <div className={`min-h-screen font-sans overflow-x-hidden text-slate-900 dark:text-slate-100 selection:bg-cyan-500 selection:text-white`}>
       
-      {/* GLOBAL LIQUID BACKGROUND */}
+      {/* GLOBAL BACKGROUNDS */}
       <LiquidBackground />
+      <PhysicsBackground />
 
       {/* --- SUPER GLASS NAVBAR (iOS STYLE) --- */}
       <motion.nav 
@@ -382,6 +452,22 @@ export default function ASPICoachingWebsite() {
               >
                 View Batches <ArrowRight size={18}/>
               </motion.a>
+            </motion.div>
+
+            {/* BENTO GRID STATS WITH ANIMATED COUNTERS */}
+            <motion.div variants={fadeInUp} className="mt-12 grid grid-cols-3 gap-4">
+               <div className="p-4 rounded-2xl bg-white/30 dark:bg-slate-900/30 border border-white/20 backdrop-blur-sm text-center">
+                  <Counter from={0} to={15} suffix="Y+" />
+                  <div className="text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase mt-1">Legacy</div>
+               </div>
+               <div className="p-4 rounded-2xl bg-white/30 dark:bg-slate-900/30 border border-white/20 backdrop-blur-sm text-center">
+                  <Counter from={0} to={20} suffix="+" />
+                  <div className="text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase mt-1">Toppers</div>
+               </div>
+               <div className="p-4 rounded-2xl bg-white/30 dark:bg-slate-900/30 border border-white/20 backdrop-blur-sm text-center">
+                  <Counter from={0} to={1000} suffix="+" />
+                  <div className="text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase mt-1">Alumni</div>
+               </div>
             </motion.div>
           </motion.div>
 
@@ -747,8 +833,19 @@ const EnrollmentForm = ({ waNumber }: { waNumber: string }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if(!formData.name || !formData.classNum) return alert("Please fill details");
+    
+    // TRIGGER CONFETTI
+    confetti({
+       particleCount: 150,
+       spread: 80,
+       origin: { y: 0.6 },
+       colors: ['#06b6d4', '#8b5cf6', '#ffffff'] // Cyan, Violet, White
+    });
+
     const message = `*New Admission Inquiry*\n\nName: ${formData.name}\nClass: ${formData.classNum}\nCity: ${formData.city || "Ujjain"}\n\nI want to book a demo class.`;
-    window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, '_blank');
+    setTimeout(() => {
+       window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, '_blank');
+    }, 1500); // Wait for confetti before opening WhatsApp
   };
   return (
     <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
