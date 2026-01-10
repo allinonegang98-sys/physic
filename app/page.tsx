@@ -8,7 +8,8 @@ import {
 import { 
   Menu, X, Phone, CheckCircle, ArrowRight, Zap, 
   BookOpen, TrendingUp, Send, User, Book, MapPin, 
-  Sparkles, Trophy, Sun, Moon, Calendar, Clock
+  Sparkles, Trophy, Sun, Moon, Calendar, Clock,
+  Snowflake, History 
 } from "lucide-react";
 
 // ==========================================
@@ -36,7 +37,41 @@ const IMAGES = {
 // 2. HELPER COMPONENTS
 // ==========================================
 
-// --- ANIMATED THEME TOGGLE ---
+// --- IMAGE LIGHTBOX MODAL ---
+const ImageModal = ({ src, onClose }: { src: string | null, onClose: () => void }) => {
+  if (!src) return null;
+  return (
+    <AnimatePresence>
+      {src && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          onClick={onClose}
+          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 cursor-zoom-out"
+        >
+          <motion.img
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            transition={{ type: "spring", damping: 25, stiffness: 300 }}
+            src={src}
+            className="max-w-full max-h-full object-contain rounded-lg shadow-2xl pointer-events-none select-none"
+            alt="Full view"
+          />
+          <button 
+            onClick={onClose} 
+            className="absolute top-6 right-6 text-white p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all border border-white/10"
+          >
+            <X size={24} />
+          </button>
+        </motion.div>
+      )}
+    </AnimatePresence>
+  );
+};
+
+// --- THEME TOGGLE ---
 const ThemeToggle = () => {
   const [theme, setTheme] = useState("dark");
 
@@ -60,7 +95,7 @@ const ThemeToggle = () => {
   return (
     <button 
       onClick={toggleTheme} 
-      className="p-2 rounded-full bg-slate-100 dark:bg-white/10 text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-white/20 transition-all border border-slate-200 dark:border-white/5 shadow-sm"
+      className="p-2 rounded-full bg-white/10 dark:bg-white/5 text-slate-800 dark:text-white hover:bg-white/20 transition-all border border-white/10 shadow-sm backdrop-blur-md"
       aria-label="Toggle Theme"
     >
       <AnimatePresence mode="wait" initial={false}>
@@ -78,7 +113,6 @@ const ThemeToggle = () => {
   );
 };
 
-// --- COUNTDOWN TIMER ---
 const CountdownTimer = ({ targetDate }: { targetDate: string }) => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
@@ -111,7 +145,6 @@ const CountdownTimer = ({ targetDate }: { targetDate: string }) => {
   );
 };
 
-// --- TYPEWRITER ---
 const Typewriter = ({ words, delay = 3000 }: { words: string[], delay?: number }) => {
   const [index, setIndex] = useState(0);
   const [subIndex, setSubIndex] = useState(0);
@@ -147,7 +180,6 @@ const Typewriter = ({ words, delay = 3000 }: { words: string[], delay?: number }
   );
 };
 
-// --- SMART NOTIFICATION ---
 const FloatingNotification = () => {
   const [visible, setVisible] = useState(false);
   const [count, setCount] = useState(0);
@@ -169,7 +201,7 @@ const FloatingNotification = () => {
           initial={{ opacity: 0, x: -100 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: -100 }}
-          className="fixed bottom-24 left-6 z-40 bg-white dark:bg-slate-900/90 backdrop-blur-md border border-slate-200 dark:border-cyan-500/30 p-4 rounded-2xl shadow-xl flex items-center gap-3 max-w-[300px]"
+          className="fixed bottom-24 left-6 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200 dark:border-cyan-500/30 p-4 rounded-2xl shadow-xl flex items-center gap-3 max-w-[300px]"
         >
           <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-500 flex items-center justify-center">
             <User className="text-white w-5 h-5" />
@@ -191,6 +223,7 @@ const FloatingNotification = () => {
 export default function ASPICoachingWebsite() {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<string | null>(null);
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 20);
@@ -206,11 +239,11 @@ export default function ASPICoachingWebsite() {
   return (
     <div className={`min-h-screen font-sans overflow-x-hidden transition-colors duration-300 bg-slate-50 text-slate-900 dark:bg-[#020617] dark:text-slate-100 selection:bg-cyan-500 selection:text-white`}>
       
-      {/* --- NAVBAR --- */}
+      {/* --- PREMIUM GLASS NAVBAR --- */}
       <motion.nav 
         initial={{ y: -100 }}
         animate={{ y: 0 }}
-        className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/90 dark:bg-[#020617]/90 backdrop-blur-xl border-b border-slate-200 dark:border-white/5 py-3" : "bg-transparent py-6"}`}
+        className={`fixed inset-x-0 top-0 z-50 transition-all duration-300 ${isScrolled ? "bg-white/60 dark:bg-[#020617]/60 backdrop-blur-md border-b border-white/20 dark:border-white/5 py-3 shadow-sm" : "bg-transparent py-6"}`}
       >
         <div className="max-w-7xl mx-auto px-6 flex items-center justify-between">
           <div className="flex items-center gap-3">
@@ -248,7 +281,7 @@ export default function ASPICoachingWebsite() {
         </div>
 
         {mobileMenuOpen && (
-          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="absolute top-full left-0 w-full bg-white dark:bg-slate-900 border-b border-slate-200 dark:border-white/10 shadow-xl p-6 flex flex-col gap-4 md:hidden">
+          <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="absolute top-full left-0 w-full bg-white/90 dark:bg-slate-900/90 backdrop-blur-xl border-b border-slate-200 dark:border-white/10 shadow-xl p-6 flex flex-col gap-4 md:hidden">
             {["Home", "Results", "Courses", "Gallery", "Enroll"].map((item) => (
               <a key={item} href={`#${item.toLowerCase()}`} onClick={() => setMobileMenuOpen(false)} className="text-slate-600 dark:text-slate-300 font-medium py-2 border-b border-slate-100 dark:border-white/5 hover:text-cyan-500">
                 {item}
@@ -316,10 +349,12 @@ export default function ASPICoachingWebsite() {
           </motion.div>
 
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, type: "spring" }} className="relative flex justify-center perspective-1000 mt-10 lg:mt-0 order-1 lg:order-2">
-             <TiltCard className="w-full max-w-md aspect-[4/5] rounded-[2rem] overflow-hidden border-4 border-white dark:border-white/5 shadow-2xl dark:shadow-[0_0_50px_-15px_rgba(6,182,212,0.3)] bg-white dark:bg-slate-900 relative group">
-               <img src={IMAGES.heroMain} alt="Amit Saxena" className="w-full h-full object-cover scale-105 group-hover:scale-110 transition-transform duration-700 filter saturate-100 contrast-110" />
-               <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-90"></div>
-               <div className="absolute bottom-8 left-8 right-8">
+             <TiltCard className="w-full max-w-md aspect-[4/5] rounded-[2rem] overflow-hidden border-4 border-white dark:border-white/5 shadow-2xl dark:shadow-[0_0_50px_-15px_rgba(6,182,212,0.3)] bg-white dark:bg-slate-900 relative group cursor-zoom-in">
+               <div onClick={() => setSelectedImage(IMAGES.heroMain)}>
+                 <img src={IMAGES.heroMain} alt="Amit Saxena" className="w-full h-full object-cover scale-105 group-hover:scale-110 transition-transform duration-700 filter saturate-100 contrast-110" />
+               </div>
+               <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-transparent to-transparent opacity-90 pointer-events-none"></div>
+               <div className="absolute bottom-8 left-8 right-8 pointer-events-none">
                   <div className="inline-block px-3 py-1 rounded-md bg-cyan-500 text-white dark:text-black text-[10px] font-black mb-3 shadow-lg tracking-wider">DIRECTOR</div>
                   <h3 className="text-3xl font-black text-white mb-1">Amit Saxena</h3>
                   <p className="text-sm text-cyan-300 dark:text-cyan-400 font-medium">Physics Mentor & Guide</p>
@@ -329,7 +364,7 @@ export default function ASPICoachingWebsite() {
         </div>
       </section>
 
-      {/* --- RESULTS SECTION (SWIPE SLIDER) --- */}
+      {/* --- RESULTS SECTION (SWIPE SLIDER + CLICK) --- */}
       <section id="results" className="py-24 bg-white dark:bg-[#020617] relative overflow-hidden transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <ScrollReveal>
@@ -338,20 +373,24 @@ export default function ASPICoachingWebsite() {
                 <h2 className="text-4xl lg:text-5xl font-black text-slate-900 dark:text-white mb-2">
                   HALL OF <span className="text-transparent bg-clip-text bg-gradient-to-r from-yellow-500 to-orange-500">FAME</span>
                 </h2>
-                <p className="text-slate-600 dark:text-slate-400">Swipe to see our champions.</p>
+                <p className="text-slate-600 dark:text-slate-400">Swipe to see our champions. Click to zoom.</p>
               </div>
             </div>
           </ScrollReveal>
-          <ResultSlider images={[ IMAGES.results2025, IMAGES.results11th, IMAGES.toppers2024, IMAGES.groupPhoto ]} />
+          {/* Slider with FIX for Swipe vs Click */}
+          <ResultSlider 
+            images={[ IMAGES.results2025, IMAGES.results11th, IMAGES.toppers2024, IMAGES.groupPhoto ]} 
+            onImageClick={setSelectedImage}
+          />
         </div>
       </section>
 
-      {/* --- VIDEO SECTION --- */}
+      {/* --- VIDEO & FEATURES SECTION --- */}
       <section className="py-24 bg-slate-100 dark:bg-slate-950/50 overflow-hidden relative transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center relative z-10">
           <ScrollReveal>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-violet-500/30 text-violet-600 dark:text-violet-400 text-xs font-bold uppercase tracking-wider mb-6">
-              <Sparkles size={12} /> The Vibe
+              <Sparkles size={12} /> The Experience
             </div>
             <h2 className="text-4xl md:text-6xl font-black text-slate-900 dark:text-white mb-6 tracking-tight">
               NOT YOUR <br/>
@@ -360,8 +399,31 @@ export default function ASPICoachingWebsite() {
             <p className="text-slate-600 dark:text-slate-400 text-lg mb-8 leading-relaxed">
               We don't just write on the board. We visualize, we simulate, and we solve. Check out the energy inside the classroom.
             </p>
+
+            <div className="grid grid-cols-2 gap-4">
+               <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 shadow-sm flex items-start gap-3">
+                 <div className="p-2 rounded-lg bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400">
+                    <Snowflake size={20} />
+                 </div>
+                 <div>
+                    <h4 className="font-bold text-slate-900 dark:text-white text-sm">AC Classrooms</h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Fully ventilated & comfortable environment.</p>
+                 </div>
+               </div>
+
+               <div className="p-4 rounded-2xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-white/10 shadow-sm flex items-start gap-3">
+                 <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
+                    <History size={20} />
+                 </div>
+                 <div>
+                    <h4 className="font-bold text-slate-900 dark:text-white text-sm">Backup Classes</h4>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">Missed a topic? We cover it up for you.</p>
+                 </div>
+               </div>
+            </div>
+
           </ScrollReveal>
-          <div className="flex justify-center lg:justify-end">
+          <div className="flex justify-center lg:justify-end mt-12 lg:mt-0">
             <TiltCard className="relative w-[300px] md:w-[320px] aspect-[9/16] rounded-[2.5rem] border-[8px] border-white dark:border-slate-900 bg-black shadow-2xl overflow-hidden group">
               <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-black rounded-b-xl z-20"></div>
               <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity">
@@ -376,7 +438,7 @@ export default function ASPICoachingWebsite() {
         </div>
       </section>
 
-      {/* --- GALLERY SECTION --- */}
+      {/* --- GALLERY SECTION (CLICKABLE) --- */}
       <section id="gallery" className="py-24 bg-white dark:bg-[#020617] relative transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
@@ -384,29 +446,29 @@ export default function ASPICoachingWebsite() {
           </div>
           <div className="grid grid-cols-2 md:grid-cols-4 grid-rows-2 gap-4 h-[600px]">
             <ScrollReveal className="col-span-2 row-span-2 h-full">
-              <div className="w-full h-full rounded-3xl overflow-hidden relative group">
+              <div className="w-full h-full rounded-3xl overflow-hidden relative group cursor-zoom-in" onClick={() => setSelectedImage(IMAGES.groupPhoto)}>
                 <img src={IMAGES.groupPhoto} alt="Group" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110 grayscale group-hover:grayscale-0" />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-6">
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent flex items-end p-6 pointer-events-none">
                    <h3 className="text-xl font-bold text-white">Celebrations</h3>
                 </div>
               </div>
             </ScrollReveal>
             <ScrollReveal className="col-span-1 row-span-1 h-full">
-              <div className="w-full h-full rounded-3xl overflow-hidden relative group bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-white/5">
+              <div className="w-full h-full rounded-3xl overflow-hidden relative group bg-slate-100 dark:bg-slate-900 border border-slate-200 dark:border-white/5 cursor-zoom-in" onClick={() => setSelectedImage(IMAGES.toppers2024)}>
                 <img src={IMAGES.toppers2024} alt="Toppers" className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-all" />
               </div>
             </ScrollReveal>
             <ScrollReveal className="col-span-1 row-span-2 h-full">
-              <div className="w-full h-full rounded-3xl overflow-hidden relative group bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-100 dark:border-cyan-500/20">
+              <div className="w-full h-full rounded-3xl overflow-hidden relative group bg-cyan-50 dark:bg-cyan-900/20 border border-cyan-100 dark:border-cyan-500/20 cursor-zoom-in" onClick={() => setSelectedImage(IMAGES.results2025)}>
                 <img src={IMAGES.results2025} alt="List" className="w-full h-full object-cover mix-blend-multiply dark:mix-blend-overlay opacity-80" />
-                <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center">
+                <div className="absolute inset-0 flex flex-col items-center justify-center p-4 text-center pointer-events-none">
                    <Trophy className="text-cyan-600 dark:text-cyan-400 mb-2" size={32} />
                    <h4 className="font-bold text-cyan-900 dark:text-cyan-100">Consistent Results</h4>
                 </div>
               </div>
             </ScrollReveal>
              <ScrollReveal className="col-span-1 row-span-1 h-full">
-              <div className="w-full h-full rounded-3xl overflow-hidden relative group">
+              <div className="w-full h-full rounded-3xl overflow-hidden relative group cursor-zoom-in" onClick={() => setSelectedImage(IMAGES.gallery1)}>
                 <img src={IMAGES.gallery1} alt="Class" className="w-full h-full object-cover" />
               </div>
             </ScrollReveal>
@@ -490,6 +552,7 @@ export default function ASPICoachingWebsite() {
 
       {/* --- FLOATING ELEMENTS --- */}
       <FloatingNotification />
+      <ImageModal src={selectedImage} onClose={() => setSelectedImage(null)} />
       
       <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-4">
          <motion.a 
@@ -515,11 +578,12 @@ export default function ASPICoachingWebsite() {
 }
 
 // ==========================================
-// 4. SUB-COMPONENTS
+// 4. SUB-COMPONENTS (FIXED FOR SWIPE/TAP)
 // ==========================================
 
-const ResultSlider = ({ images }: { images: string[] }) => {
+const ResultSlider = ({ images, onImageClick }: { images: string[], onImageClick: (src: string) => void }) => {
   const [index, setIndex] = useState(0);
+  const isDragging = useRef(false); // FLAG TO TRACK DRAG STATUS
 
   // Swipe Logic
   const swipeConfidenceThreshold = 10000;
@@ -537,19 +601,28 @@ const ResultSlider = ({ images }: { images: string[] }) => {
 
   return (
     <div className="relative w-full max-w-4xl mx-auto aspect-[16/9] md:aspect-[21/9] flex items-center justify-center">
-      {/* Swipe Area Wrapper */}
+      {/* Swipe & Tap Area Wrapper */}
       <motion.div
-        className="absolute inset-0 z-30 touch-pan-y"
+        className="absolute inset-0 z-30 touch-pan-y cursor-grab active:cursor-grabbing"
         drag="x"
         dragConstraints={{ left: 0, right: 0 }}
         style={{ opacity: 0 }}
+        
+        // SENSOR LOGIC
+        onDragStart={() => { isDragging.current = true; }} // Set flag on drag start
+        onTap={() => { 
+          if (!isDragging.current) onImageClick(images[index]); // Only click if not dragging
+        }}
         onDragEnd={(e, { offset, velocity }: PanInfo) => {
-          const swipe = swipePower(offset.x, velocity.x);
-          if (swipe < -swipeConfidenceThreshold) {
-            paginate(1);
-          } else if (swipe > swipeConfidenceThreshold) {
-            paginate(-1);
-          }
+           // Wait a tiny bit before resetting drag flag (prevents click firing after drag)
+           setTimeout(() => { isDragging.current = false; }, 100);
+
+           const swipe = swipePower(offset.x, velocity.x);
+           if (swipe < -swipeConfidenceThreshold) {
+             paginate(1);
+           } else if (swipe > swipeConfidenceThreshold) {
+             paginate(-1);
+           }
         }}
       />
 
