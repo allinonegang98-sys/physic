@@ -2,19 +2,26 @@
 
 import React, { useState, useEffect, useRef } from "react";
 import { 
-  motion, useScroll, useTransform, useInView, useSpring, useMotionValue, 
-  AnimatePresence, PanInfo, animate 
+  motion, 
+  useScroll, 
+  useTransform, 
+  useInView, 
+  animate, 
+  AnimatePresence, 
+  PanInfo,
+  useMotionValue,
+  useSpring
 } from "framer-motion";
 import { 
   Menu, X, Phone, CheckCircle, ArrowRight, Zap, 
   BookOpen, TrendingUp, Send, User, Book, MapPin, 
   Sparkles, Trophy, Sun, Moon, Calendar, Clock,
-  Snowflake, History 
+  Snowflake, History, ChevronDown, XCircle
 } from "lucide-react";
-import confetti from "canvas-confetti"; // Requires: npm install canvas-confetti @types/canvas-confetti
+import confetti from "canvas-confetti"; 
 
 // ==========================================
-// 1. CONFIGURATION & IMAGES
+// 1. CONFIGURATION & DATA
 // ==========================================
 
 const CONFIG = {
@@ -34,9 +41,128 @@ const IMAGES = {
   gallery2: "/list3.jpeg",
 };
 
+const CURRICULUM = {
+  foundation: [
+    "Mathematical Tools", 
+    "Kinematics 1D & 2D", 
+    "Newton's Laws", 
+    "Work, Energy, Power", 
+    "Rotational Motion", 
+    "Gravitation"
+  ],
+  target: [
+    "Electrostatics", 
+    "Current Electricity", 
+    "Magnetism", 
+    "EMI & AC", 
+    "Ray & Wave Optics", 
+    "Modern Physics"
+  ],
+  crash: [
+    "High Weightage Topics", 
+    "Formula Revision", 
+    "Previous Year Qs", 
+    "Mock Tests", 
+    "Time Management", 
+    "Doubt Clearing"
+  ],
+};
+
 // ==========================================
 // 2. HELPER COMPONENTS
 // ==========================================
+
+// --- FLIP CLOCK COMPONENT ---
+const FlipUnit = ({ value, label }: { value: number, label: string }) => {
+  const formattedValue = String(value).padStart(2, "0");
+  
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div className="relative w-16 h-20 md:w-20 md:h-24 bg-white/10 dark:bg-slate-800/50 backdrop-blur-md rounded-xl border border-white/20 dark:border-white/10 overflow-hidden shadow-2xl flex flex-col justify-center">
+        <div className="absolute inset-x-0 top-1/2 h-[1px] bg-black/20 dark:bg-black/50 z-20"></div>
+        <AnimatePresence mode="popLayout">
+          <motion.span 
+            key={formattedValue}
+            initial={{ y: -50, opacity: 0, rotateX: -90 }}
+            animate={{ y: 0, opacity: 1, rotateX: 0 }}
+            exit={{ y: 50, opacity: 0, rotateX: 90 }}
+            transition={{ duration: 0.4, type: "spring", stiffness: 200 }}
+            className="text-4xl md:text-5xl font-black text-slate-900 dark:text-white text-center z-10"
+          >
+            {formattedValue}
+          </motion.span>
+        </AnimatePresence>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-black/20 pointer-events-none"></div>
+      </div>
+      <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500 dark:text-slate-400">
+        {label}
+      </span>
+    </div>
+  );
+};
+
+const FlipCountdown = ({ targetDate }: { targetDate: string }) => {
+  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+
+  useEffect(() => {
+    const target = new Date(targetDate).getTime();
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const difference = target - now;
+      if (difference <= 0) { clearInterval(interval); } else {
+        setTimeLeft({
+          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((difference % (1000 * 60)) / 1000),
+        });
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [targetDate]);
+
+  return (
+    <div className="flex gap-3 md:gap-4 my-8 perspective-500">
+      <FlipUnit value={timeLeft.days} label="Days" />
+      <FlipUnit value={timeLeft.hours} label="Hrs" />
+      <FlipUnit value={timeLeft.minutes} label="Mins" />
+      <FlipUnit value={timeLeft.seconds} label="Secs" />
+    </div>
+  );
+};
+
+// --- COMPARISON TABLE ---
+const ComparisonTable = () => {
+  const features = [
+    { name: "Teaching Style", aspi: "Visual & Experimental", other: "Rote Learning" },
+    { name: "Classroom", aspi: "AC + Ventilated", other: "Crowded/Hot" },
+    { name: "Missed Class?", aspi: "Video Backup Available", other: "You Missed It" },
+    { name: "Doubt Solving", aspi: "1-on-1 Focus", other: "Group Only" },
+  ];
+
+  return (
+    <div className="w-full overflow-hidden rounded-3xl border border-white/20 dark:border-white/10 bg-white/40 dark:bg-slate-900/40 backdrop-blur-xl shadow-2xl">
+      <div className="grid grid-cols-3 p-4 bg-slate-100/50 dark:bg-white/5 border-b border-white/10">
+        <div className="font-bold text-slate-500 text-xs uppercase tracking-wider">Feature</div>
+        <div className="font-black text-cyan-600 dark:text-cyan-400 text-center">ASPI</div>
+        <div className="font-bold text-slate-400 text-center">Others</div>
+      </div>
+      {features.map((item, i) => (
+        <div key={i} className="grid grid-cols-3 p-4 border-b border-white/5 last:border-0 items-center text-sm md:text-base">
+          <div className="font-bold text-slate-700 dark:text-slate-200">{item.name}</div>
+          <div className="flex flex-col items-center text-center">
+            <CheckCircle className="text-green-500 mb-1" size={20} />
+            <span className="text-xs font-bold text-slate-900 dark:text-white">{item.aspi}</span>
+          </div>
+          <div className="flex flex-col items-center text-center opacity-50">
+            <XCircle className="text-red-500 mb-1" size={20} />
+            <span className="text-xs font-medium">{item.other}</span>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+};
 
 // --- ANIMATED NUMBER COUNTER ---
 const Counter = ({ from, to, suffix = "" }: { from: number; to: number; suffix?: string }) => {
@@ -61,13 +187,12 @@ const Counter = ({ from, to, suffix = "" }: { from: number; to: number; suffix?:
   return <div ref={nodeRef} className="text-2xl font-black text-slate-900 dark:text-white" />;
 };
 
-// --- FLOATING PHYSICS PARTICLES ---
+// --- GLOBAL BACKGROUNDS ---
 const PhysicsBackground = () => {
   const symbols = ["α", "β", "Ω", "π", "Σ", "λ", "Δ", "μ", "ħ", "∫"];
   const [particles, setParticles] = useState<any[]>([]);
 
   useEffect(() => {
-    // Generate static positions only on client to avoid hydration mismatch
     const newParticles = symbols.map((sym, i) => ({
       id: i,
       sym,
@@ -106,70 +231,49 @@ const PhysicsBackground = () => {
   );
 };
 
-// --- LIQUID BACKGROUND (THE APPLE EFFECT) ---
-const LiquidBackground = () => {
-  return (
-    <div className="fixed inset-0 -z-50 overflow-hidden pointer-events-none">
-       {/* Blob 1: Cyan/Blue */}
-       <motion.div 
-         animate={{ 
-           x: [0, 100, -50, 0], 
-           y: [0, -50, 50, 0],
-           scale: [1, 1.2, 0.9, 1] 
-         }} 
-         transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-         className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-cyan-500/30 dark:bg-cyan-500/20 rounded-full blur-[120px] mix-blend-multiply dark:mix-blend-screen" 
-       />
-       
-       {/* Blob 2: Purple/Violet */}
-       <motion.div 
-         animate={{ 
-           x: [0, -70, 30, 0], 
-           y: [0, 80, -40, 0],
-           scale: [1, 1.1, 1] 
-         }} 
-         transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-         className="absolute top-[20%] right-[-10%] w-[600px] h-[600px] bg-violet-500/30 dark:bg-violet-600/20 rounded-full blur-[140px] mix-blend-multiply dark:mix-blend-screen" 
-       />
+const LiquidBackground = () => (
+  <div className="fixed inset-0 -z-50 overflow-hidden pointer-events-none">
+     <motion.div 
+       animate={{ x: [0, 100, -50, 0], y: [0, -50, 50, 0], scale: [1, 1.2, 0.9, 1] }} 
+       transition={{ duration: 20, repeat: Infinity, ease: "linear" }} 
+       className="absolute top-[-10%] left-[-10%] w-[500px] h-[500px] bg-cyan-500/30 dark:bg-cyan-500/20 rounded-full blur-[120px] mix-blend-multiply dark:mix-blend-screen" 
+     />
+     <motion.div 
+       animate={{ x: [0, -70, 30, 0], y: [0, 80, -40, 0], scale: [1, 1.1, 1] }} 
+       transition={{ duration: 25, repeat: Infinity, ease: "linear" }} 
+       className="absolute top-[20%] right-[-10%] w-[600px] h-[600px] bg-violet-500/30 dark:bg-violet-600/20 rounded-full blur-[140px] mix-blend-multiply dark:mix-blend-screen" 
+     />
+     <motion.div 
+       animate={{ x: [0, 60, -60, 0], y: [0, -30, 30, 0], }} 
+       transition={{ duration: 18, repeat: Infinity, ease: "linear" }} 
+       className="absolute bottom-[-10%] left-[20%] w-[500px] h-[500px] bg-blue-500/30 dark:bg-blue-600/20 rounded-full blur-[130px] mix-blend-multiply dark:mix-blend-screen" 
+     />
+  </div>
+);
 
-       {/* Blob 3: Blue/Indigo (Bottom) */}
-       <motion.div 
-         animate={{ 
-           x: [0, 60, -60, 0], 
-           y: [0, -30, 30, 0],
-         }} 
-         transition={{ duration: 18, repeat: Infinity, ease: "linear" }}
-         className="absolute bottom-[-10%] left-[20%] w-[500px] h-[500px] bg-blue-500/30 dark:bg-blue-600/20 rounded-full blur-[130px] mix-blend-multiply dark:mix-blend-screen" 
-       />
-    </div>
-  );
-};
-
-// --- IMAGE LIGHTBOX MODAL ---
+// --- MODAL & THEME ---
 const ImageModal = ({ src, onClose }: { src: string | null, onClose: () => void }) => {
   if (!src) return null;
   return (
     <AnimatePresence>
       {src && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          onClick={onClose}
-          className="fixed inset-0 z-[100] bg-black/80 backdrop-blur-xl flex items-center justify-center p-4 cursor-zoom-out"
+        <motion.div 
+          initial={{ opacity: 0 }} 
+          animate={{ opacity: 1 }} 
+          exit={{ opacity: 0 }} 
+          onClick={onClose} 
+          className="fixed inset-0 z-[100] bg-black/95 backdrop-blur-md flex items-center justify-center p-4 cursor-zoom-out"
         >
-          <motion.img
-            initial={{ scale: 0.8, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            transition={{ type: "spring", damping: 25, stiffness: 300 }}
-            src={src}
-            className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl pointer-events-none select-none border border-white/10"
-            alt="Full view"
+          <motion.img 
+            initial={{ scale: 0.8, opacity: 0 }} 
+            animate={{ scale: 1, opacity: 1 }} 
+            exit={{ scale: 0.8, opacity: 0 }} 
+            src={src} 
+            className="max-w-full max-h-full object-contain rounded-lg shadow-2xl pointer-events-none select-none" 
           />
           <button 
             onClick={onClose} 
-            className="absolute top-6 right-6 text-white p-3 bg-white/10 rounded-full hover:bg-white/20 transition-all border border-white/10 backdrop-blur-md"
+            className="absolute top-6 right-6 text-white p-3 bg-white/10 rounded-full hover:bg-white/20 border border-white/10"
           >
             <X size={24} />
           </button>
@@ -179,7 +283,6 @@ const ImageModal = ({ src, onClose }: { src: string | null, onClose: () => void 
   );
 };
 
-// --- THEME TOGGLE ---
 const ThemeToggle = () => {
   const [theme, setTheme] = useState("dark");
 
@@ -203,53 +306,20 @@ const ThemeToggle = () => {
   return (
     <button 
       onClick={toggleTheme} 
-      className="p-2 rounded-full bg-white/30 dark:bg-white/10 text-slate-800 dark:text-white hover:bg-white/40 transition-all border border-white/20 shadow-sm backdrop-blur-lg"
-      aria-label="Toggle Theme"
+      className="p-2 rounded-full bg-white/10 text-slate-800 dark:text-white hover:bg-white/20 border border-white/10 shadow-sm backdrop-blur-md"
     >
       <AnimatePresence mode="wait" initial={false}>
-        <motion.div
-          key={theme}
-          initial={{ y: -20, opacity: 0, rotate: -90 }}
-          animate={{ y: 0, opacity: 1, rotate: 0 }}
-          exit={{ y: 20, opacity: 0, rotate: 90 }}
+        <motion.div 
+          key={theme} 
+          initial={{ y: -20, opacity: 0, rotate: -90 }} 
+          animate={{ y: 0, opacity: 1, rotate: 0 }} 
+          exit={{ y: 20, opacity: 0, rotate: 90 }} 
           transition={{ duration: 0.2 }}
         >
           {theme === "dark" ? <Sun size={20} className="text-yellow-400" /> : <Moon size={20} className="text-slate-700" />}
         </motion.div>
       </AnimatePresence>
     </button>
-  );
-};
-
-const CountdownTimer = ({ targetDate }: { targetDate: string }) => {
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-
-  useEffect(() => {
-    const target = new Date(targetDate).getTime();
-    const interval = setInterval(() => {
-      const now = Date.now();
-      const difference = target - now;
-      if (difference <= 0) { clearInterval(interval); } else {
-        setTimeLeft({
-          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
-          minutes: Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)),
-          seconds: Math.floor((difference % (1000 * 60)) / 1000),
-        });
-      }
-    }, 1000);
-    return () => clearInterval(interval);
-  }, [targetDate]);
-
-  return (
-    <div className="flex gap-3 md:gap-4 my-8">
-      {Object.entries(timeLeft).map(([unit, value]) => (
-        <div key={unit} className="flex flex-col items-center bg-white/40 dark:bg-slate-900/40 backdrop-blur-md border border-white/20 p-3 rounded-2xl min-w-[70px] shadow-lg">
-          <span className="text-2xl font-bold text-slate-900 dark:text-white">{String(value).padStart(2, '0')}</span>
-          <span className="text-[10px] uppercase text-slate-600 dark:text-slate-400 font-bold">{unit}</span>
-        </div>
-      ))}
-    </div>
   );
 };
 
@@ -298,7 +368,7 @@ const FloatingNotification = () => {
       setVisible(true);
       setCount((prev) => prev + 1);
       setTimeout(() => setVisible(false), 5000);
-    }, 20000); 
+    }, 20000);
     return () => clearTimeout(timer);
   }, [count]);
 
@@ -306,17 +376,17 @@ const FloatingNotification = () => {
     <AnimatePresence>
       {visible && (
         <motion.div 
-          initial={{ opacity: 0, x: -100 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -100 }}
-          className="fixed bottom-24 left-6 z-40 bg-white/70 dark:bg-slate-900/60 backdrop-blur-2xl border border-white/20 p-4 rounded-2xl shadow-xl flex items-center gap-3 max-w-[300px]"
+          initial={{ opacity: 0, x: -100 }} 
+          animate={{ opacity: 1, x: 0 }} 
+          exit={{ opacity: 0, x: -100 }} 
+          className="fixed bottom-24 left-6 z-40 bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl border border-slate-200 dark:border-cyan-500/30 p-4 rounded-2xl shadow-xl flex items-center gap-3 max-w-[300px]"
         >
-          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-500 flex items-center justify-center shadow-lg">
+          <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-cyan-500 to-blue-500 flex items-center justify-center">
             <User className="text-white w-5 h-5" />
           </div>
           <div>
             <p className="text-slate-900 dark:text-white text-xs font-bold">New Student Enrolled!</p>
-            <p className="text-slate-600 dark:text-slate-400 text-[10px]">Just now • 11th Class Physics</p>
+            <p className="text-slate-500 dark:text-slate-400 text-[10px]">Just now • 11th Class Physics</p>
           </div>
         </motion.div>
       )}
@@ -325,7 +395,7 @@ const FloatingNotification = () => {
 };
 
 // ==========================================
-// 3. MAIN COMPONENT
+// 3. MAIN PAGE COMPONENT
 // ==========================================
 
 export default function ASPICoachingWebsite() {
@@ -347,11 +417,10 @@ export default function ASPICoachingWebsite() {
   return (
     <div className={`min-h-screen font-sans overflow-x-hidden text-slate-900 dark:text-slate-100 selection:bg-cyan-500 selection:text-white`}>
       
-      {/* GLOBAL BACKGROUNDS */}
       <LiquidBackground />
       <PhysicsBackground />
 
-      {/* --- SUPER GLASS NAVBAR (iOS STYLE) --- */}
+      {/* NAVBAR */}
       <motion.nav 
         initial={{ y: -100 }}
         animate={{ y: 0 }}
@@ -367,7 +436,7 @@ export default function ASPICoachingWebsite() {
               ASPI <span className="text-cyan-600 dark:text-cyan-400">.</span>
             </div>
           </div>
-
+          
           <div className="hidden md:flex items-center gap-8 text-sm font-medium text-slate-700 dark:text-slate-200">
             {["Home", "Results", "Courses", "Gallery"].map((item) => (
               <a key={item} href={`#${item.toLowerCase()}`} className="hover:text-cyan-500 transition-colors relative group">
@@ -379,19 +448,24 @@ export default function ASPICoachingWebsite() {
           
           <div className="hidden md:flex items-center gap-4">
              <ThemeToggle />
-             <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={() => openWhatsApp("Hello Sir, I want to book a demo class.")} className="px-6 py-2.5 bg-cyan-500 text-white dark:text-black rounded-full font-bold text-sm shadow-lg shadow-cyan-500/30 hover:bg-cyan-600 dark:hover:bg-cyan-400 transition-colors border border-white/10">
+             <motion.button 
+               whileHover={{ scale: 1.05 }} 
+               whileTap={{ scale: 0.95 }} 
+               onClick={() => openWhatsApp("Hello Sir, I want to book a demo class.")} 
+               className="px-6 py-2.5 bg-cyan-500 text-white dark:text-black rounded-full font-bold text-sm shadow-lg shadow-cyan-500/30 hover:bg-cyan-600 dark:hover:bg-cyan-400 transition-colors border border-white/10"
+             >
                Book Demo
              </motion.button>
           </div>
-
+          
           <div className="flex items-center gap-4 md:hidden">
-             <ThemeToggle />
-             <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 text-slate-900 dark:text-white">
-                {mobileMenuOpen ? <X /> : <Menu />}
-             </button>
+            <ThemeToggle />
+            <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-2 text-slate-900 dark:text-white">
+              {mobileMenuOpen ? <X /> : <Menu />}
+            </button>
           </div>
         </div>
-
+        
         {mobileMenuOpen && (
           <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="absolute top-full left-0 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-3xl border-b border-white/20 shadow-xl p-6 flex flex-col gap-4 md:hidden">
             {["Home", "Results", "Courses", "Gallery", "Enroll"].map((item) => (
@@ -403,7 +477,7 @@ export default function ASPICoachingWebsite() {
         )}
       </motion.nav>
 
-      {/* --- HERO SECTION --- */}
+      {/* HERO */}
       <section id="home" className="relative min-h-screen flex items-center pt-32 pb-24 lg:pt-0">
         <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-12 items-center relative z-10">
           <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="pt-8 order-2 lg:order-1">
@@ -429,24 +503,25 @@ export default function ASPICoachingWebsite() {
               Forget boring lectures. Experience Physics with <strong>visualizations</strong>, <strong>experiments</strong>, and <strong>high-energy</strong> classes.
             </motion.p>
             
+            {/* FLIP CLOCK REPLACES TEXT TIMER */}
             <motion.div variants={fadeInUp}>
-              <p className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest flex items-center gap-2">
+              <p className="text-xs font-bold text-slate-600 dark:text-slate-400 uppercase tracking-widest flex items-center gap-2 mb-2">
                 <Clock size={14} /> New Batch Starting In:
               </p>
-              <CountdownTimer targetDate={CONFIG.targetDate} />
+              <FlipCountdown targetDate={CONFIG.targetDate} />
             </motion.div>
 
             <motion.div variants={fadeInUp} className="flex flex-wrap gap-4 mt-6">
               <motion.button 
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                whileHover={{ scale: 1.05 }} 
+                whileTap={{ scale: 0.95 }} 
                 onClick={() => document.getElementById('enroll')?.scrollIntoView({ behavior: 'smooth' })} 
                 className="px-8 py-4 bg-cyan-500 text-white dark:text-black rounded-xl font-black shadow-lg shadow-cyan-500/30 flex items-center gap-2 border border-white/10"
               >
                 <Zap size={20} className="fill-current"/> JOIN THE SQUAD
               </motion.button>
               <motion.a 
-                whileHover={{ scale: 1.05 }}
+                whileHover={{ scale: 1.05 }} 
                 href="#courses" 
                 className="px-8 py-4 bg-white/40 dark:bg-white/10 text-slate-900 dark:text-white border border-white/20 rounded-xl font-bold hover:bg-white/50 dark:hover:bg-white/20 flex items-center gap-2 shadow-sm backdrop-blur-md"
               >
@@ -454,24 +529,22 @@ export default function ASPICoachingWebsite() {
               </motion.a>
             </motion.div>
 
-            {/* BENTO GRID STATS WITH ANIMATED COUNTERS */}
             <motion.div variants={fadeInUp} className="mt-12 grid grid-cols-3 gap-4">
                <div className="p-4 rounded-2xl bg-white/30 dark:bg-slate-900/30 border border-white/20 backdrop-blur-sm text-center">
-                  <Counter from={0} to={15} suffix="Y+" />
-                  <div className="text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase mt-1">Legacy</div>
+                 <Counter from={0} to={15} suffix="Y+" />
+                 <div className="text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase mt-1">Legacy</div>
                </div>
                <div className="p-4 rounded-2xl bg-white/30 dark:bg-slate-900/30 border border-white/20 backdrop-blur-sm text-center">
-                  <Counter from={0} to={20} suffix="+" />
-                  <div className="text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase mt-1">Toppers</div>
+                 <Counter from={0} to={20} suffix="+" />
+                 <div className="text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase mt-1">Toppers</div>
                </div>
                <div className="p-4 rounded-2xl bg-white/30 dark:bg-slate-900/30 border border-white/20 backdrop-blur-sm text-center">
-                  <Counter from={0} to={1000} suffix="+" />
-                  <div className="text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase mt-1">Alumni</div>
+                 <Counter from={0} to={1000} suffix="+" />
+                 <div className="text-[10px] text-slate-600 dark:text-slate-400 font-bold uppercase mt-1">Alumni</div>
                </div>
             </motion.div>
           </motion.div>
 
-          {/* HERO IMAGE */}
           <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.3, type: "spring" }} className="relative flex justify-center perspective-1000 mt-10 lg:mt-0 order-1 lg:order-2">
              <TiltCard className="w-full max-w-md aspect-[4/5] rounded-[2rem] overflow-hidden border-4 border-white/40 dark:border-white/10 shadow-2xl dark:shadow-[0_0_60px_-15px_rgba(6,182,212,0.4)] bg-white/20 dark:bg-slate-900/40 backdrop-blur-xl relative group cursor-zoom-in">
                <div onClick={() => setSelectedImage(IMAGES.heroMain)}>
@@ -479,16 +552,16 @@ export default function ASPICoachingWebsite() {
                </div>
                <div className="absolute inset-0 bg-gradient-to-t from-slate-900/90 via-transparent to-transparent opacity-90 pointer-events-none"></div>
                <div className="absolute bottom-8 left-8 right-8 pointer-events-none">
-                  <div className="inline-block px-3 py-1 rounded-md bg-cyan-500 text-white dark:text-black text-[10px] font-black mb-3 shadow-lg tracking-wider">DIRECTOR</div>
-                  <h3 className="text-3xl font-black text-white mb-1">Amit Saxena</h3>
-                  <p className="text-sm text-cyan-300 dark:text-cyan-400 font-medium">Physics Mentor & Guide</p>
+                 <div className="inline-block px-3 py-1 rounded-md bg-cyan-500 text-white dark:text-black text-[10px] font-black mb-3 shadow-lg tracking-wider">DIRECTOR</div>
+                 <h3 className="text-3xl font-black text-white mb-1">Amit Saxena</h3>
+                 <p className="text-sm text-cyan-300 dark:text-cyan-400 font-medium">Physics Mentor & Guide</p>
                </div>
              </TiltCard>
           </motion.div>
         </div>
       </section>
 
-      {/* --- RESULTS SECTION --- */}
+      {/* RESULTS SECTION */}
       <section id="results" className="py-24 relative overflow-hidden">
         <div className="max-w-7xl mx-auto px-6 relative z-10">
           <ScrollReveal>
@@ -501,16 +574,13 @@ export default function ASPICoachingWebsite() {
               </div>
             </div>
           </ScrollReveal>
-          <ResultSlider 
-            images={[ IMAGES.results2025, IMAGES.results11th, IMAGES.toppers2024, IMAGES.groupPhoto ]} 
-            onImageClick={setSelectedImage}
-          />
+          <ResultSlider images={[ IMAGES.results2025, IMAGES.results11th, IMAGES.toppers2024, IMAGES.groupPhoto ]} onImageClick={setSelectedImage} />
         </div>
       </section>
 
-      {/* --- VIDEO & FEATURES SECTION --- */}
+      {/* FEATURES & COMPARISON */}
       <section className="py-24 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-center relative z-10">
+        <div className="max-w-7xl mx-auto px-6 grid lg:grid-cols-2 gap-16 items-start relative z-10">
           <ScrollReveal>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full border border-violet-500/30 text-violet-600 dark:text-violet-400 text-xs font-bold uppercase tracking-wider mb-6 bg-violet-100/50 dark:bg-violet-900/20 backdrop-blur-sm">
               <Sparkles size={12} /> The Experience
@@ -520,35 +590,17 @@ export default function ASPICoachingWebsite() {
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-fuchsia-500">TYPICAL CLASS</span>
             </h2>
             <p className="text-slate-600 dark:text-slate-300 text-lg mb-8 leading-relaxed">
-              We don't just write on the board. We visualize, we simulate, and we solve. Check out the energy inside the classroom.
+              We don't just write on the board. We visualize, we simulate, and we solve.
             </p>
-
-            <div className="grid grid-cols-2 gap-4">
-               <div className="p-4 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-white/30 dark:border-white/10 shadow-sm flex items-start gap-3 backdrop-blur-md">
-                 <div className="p-2 rounded-lg bg-cyan-100 dark:bg-cyan-900/30 text-cyan-600 dark:text-cyan-400">
-                    <Snowflake size={20} />
-                 </div>
-                 <div>
-                    <h4 className="font-bold text-slate-900 dark:text-white text-sm">AC Classrooms</h4>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Fully ventilated & comfortable environment.</p>
-                 </div>
-               </div>
-
-               <div className="p-4 rounded-2xl bg-white/40 dark:bg-slate-900/40 border border-white/30 dark:border-white/10 shadow-sm flex items-start gap-3 backdrop-blur-md">
-                 <div className="p-2 rounded-lg bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400">
-                    <History size={20} />
-                 </div>
-                 <div>
-                    <h4 className="font-bold text-slate-900 dark:text-white text-sm">Backup Classes</h4>
-                    <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5">Missed a topic? We cover it up for you.</p>
-                 </div>
-               </div>
-            </div>
-
+            
+            {/* COMPARISON TABLE */}
+            <ComparisonTable />
           </ScrollReveal>
-          <div className="flex justify-center lg:justify-end mt-12 lg:mt-0">
-            <TiltCard className="relative w-[300px] md:w-[320px] aspect-[9/16] rounded-[2.5rem] border-[8px] border-white dark:border-slate-900 bg-black shadow-2xl overflow-hidden group">
-              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-black rounded-b-xl z-20"></div>
+
+          <div className="flex justify-center lg:justify-end">
+            <TiltCard className="relative w-[300px] md:w-[320px] aspect-[9/16] rounded-[2.5rem] border-[8px] border-white dark:border-slate-900 bg-black shadow-2xl overflow-hidden group z-20">
+              {/* Phone Notch */}
+              <div className="absolute top-0 left-1/2 -translate-x-1/2 w-32 h-6 bg-black rounded-b-3xl z-20"></div>
               <video autoPlay loop muted playsInline className="w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity">
                 <source src={CONFIG.videoFile} type="video/mp4" />
               </video>
@@ -561,7 +613,54 @@ export default function ASPICoachingWebsite() {
         </div>
       </section>
 
-      {/* --- GALLERY SECTION --- */}
+      {/* COURSES */}
+      <section id="courses" className="py-24 relative overflow-hidden">
+        <div className="max-w-7xl mx-auto px-6 relative z-10">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-4 drop-shadow-sm">CHOOSE YOUR <span className="text-cyan-500">BATCH</span></h2>
+          </div>
+          <div className="grid md:grid-cols-3 gap-6">
+             <CourseCardModern 
+               title="Foundation" 
+               subtitle="11th + 12th" 
+               badge="BOARDS + JEE" 
+               accentColor="blue" 
+               icon={<BookOpen size={24} />} 
+               features={["NCERT Deep Dive", "Concept Visualization", "Board Writing Practice"]} 
+               curriculum={CURRICULUM.foundation} 
+               delay={0.1} 
+               onEnroll={() => openWhatsApp("I want to enroll for Foundation Batch")} 
+             />
+             <div className="md:-mt-6"> 
+               <CourseCardModern 
+                 title="Target" 
+                 subtitle="JEE & NEET" 
+                 badge="DROPPER / 12+" 
+                 accentColor="cyan" 
+                 icon={<Zap size={24} />} 
+                 features={["Short Trick Mastery", "Daily DPPs & Analysis", "High-Speed Test Series"]} 
+                 curriculum={CURRICULUM.target} 
+                 highlighted={true} 
+                 delay={0.2} 
+                 onEnroll={() => openWhatsApp("I want to enroll for JEE/NEET Batch")} 
+               />
+             </div>
+             <CourseCardModern 
+               title="Crash Course" 
+               subtitle="Last Mile" 
+               badge="RANK BOOSTER" 
+               accentColor="purple" 
+               icon={<TrendingUp size={24} />} 
+               features={["Problem Solving Focus", "Personalized Strategy", "Advanced Level Qs"]} 
+               curriculum={CURRICULUM.crash} 
+               delay={0.3} 
+               onEnroll={() => openWhatsApp("I want to enroll for Crash Course")} 
+             />
+          </div>
+        </div>
+      </section>
+
+      {/* GALLERY */}
       <section id="gallery" className="py-24 relative transition-colors duration-300">
         <div className="max-w-7xl mx-auto px-6">
           <div className="text-center mb-16">
@@ -599,51 +698,7 @@ export default function ASPICoachingWebsite() {
         </div>
       </section>
 
-      {/* --- COURSES SECTION --- */}
-      <section id="courses" className="py-24 relative overflow-hidden">
-        <div className="max-w-7xl mx-auto px-6 relative z-10">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-black text-slate-900 dark:text-white mb-4 drop-shadow-sm">CHOOSE YOUR <span className="text-cyan-500">BATCH</span></h2>
-          </div>
-          <div className="grid md:grid-cols-3 gap-6">
-             <CourseCardModern 
-               title="Foundation" 
-               subtitle="11th + 12th"
-               badge="BOARDS + JEE" 
-               accentColor="blue"
-               icon={<BookOpen size={24} />}
-               features={["NCERT Deep Dive", "Concept Visualization", "Board Writing Practice"]}
-               delay={0.1}
-               onEnroll={() => openWhatsApp("I want to enroll for Foundation Batch")}
-             />
-             <div className="md:-mt-6"> 
-               <CourseCardModern 
-                 title="Target" 
-                 subtitle="JEE & NEET"
-                 badge="DROPPER / 12+" 
-                 accentColor="cyan"
-                 icon={<Zap size={24} />}
-                 features={["Short Trick Mastery", "Daily DPPs & Analysis", "High-Speed Test Series"]}
-                 highlighted={true}
-                 delay={0.2}
-                 onEnroll={() => openWhatsApp("I want to enroll for JEE/NEET Batch")}
-               />
-             </div>
-             <CourseCardModern 
-               title="Crash Course" 
-               subtitle="Last Mile"
-               badge="RANK BOOSTER" 
-               accentColor="purple"
-               icon={<TrendingUp size={24} />}
-               features={["Problem Solving Focus", "Personalized Strategy", "Advanced Level Qs"]}
-               delay={0.3}
-               onEnroll={() => openWhatsApp("I want to enroll for Crash Course")}
-             />
-          </div>
-        </div>
-      </section>
-
-      {/* --- ENROLLMENT FORM --- */}
+      {/* ENROLLMENT */}
       <section id="enroll" className="py-24 relative overflow-hidden">
         <div className="max-w-4xl mx-auto px-6 relative z-10">
           <ScrollReveal>
@@ -658,7 +713,7 @@ export default function ASPICoachingWebsite() {
         </div>
       </section>
 
-      {/* --- FOOTER --- */}
+      {/* FOOTER */}
       <footer className="bg-slate-900 text-slate-500 py-12 border-t border-white/10 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-sm">
            <div className="text-center md:text-left">
@@ -672,7 +727,6 @@ export default function ASPICoachingWebsite() {
         </div>
       </footer>
 
-      {/* --- FLOATING ELEMENTS --- */}
       <FloatingNotification />
       <ImageModal src={selectedImage} onClose={() => setSelectedImage(null)} />
       
@@ -680,7 +734,7 @@ export default function ASPICoachingWebsite() {
          <motion.a 
            href={`tel:${CONFIG.waNumber}`} 
            whileHover={{ scale: 1.1 }} 
-           whileTap={{ scale: 0.9 }}
+           whileTap={{ scale: 0.9 }} 
            className="w-14 h-14 bg-white/80 dark:bg-slate-800/80 backdrop-blur-md text-slate-900 dark:text-white rounded-full flex items-center justify-center shadow-lg font-bold border border-white/30 dark:border-white/10"
          >
            <Phone size={24} />
@@ -688,19 +742,18 @@ export default function ASPICoachingWebsite() {
          <motion.button 
            onClick={() => document.getElementById('enroll')?.scrollIntoView({ behavior: 'smooth' })} 
            whileHover={{ scale: 1.1 }} 
-           whileTap={{ scale: 0.9 }}
+           whileTap={{ scale: 0.9 }} 
            className="w-14 h-14 bg-cyan-500/90 backdrop-blur-md rounded-full flex items-center justify-center text-white dark:text-black shadow-lg shadow-cyan-500/30 font-bold border border-white/20"
          >
            <Calendar size={24} />
          </motion.button>
       </div>
-
     </div>
   );
 }
 
 // ==========================================
-// 4. SUB-COMPONENTS
+// 4. SUB-COMPONENTS (FIXED)
 // ==========================================
 
 const ResultSlider = ({ images, onImageClick }: { images: string[], onImageClick: (src: string) => void }) => {
@@ -777,14 +830,27 @@ const TiltCard = ({ children, className }: { children: React.ReactNode, classNam
   const y = useMotionValue(0);
   const mouseX = useSpring(x, { stiffness: 500, damping: 100 });
   const mouseY = useSpring(y, { stiffness: 500, damping: 100 });
+
   function handleMouseMove({ currentTarget, clientX, clientY }: React.MouseEvent) {
     const { left, top, width, height } = currentTarget.getBoundingClientRect();
     x.set((clientX - left) / width - 0.5);
     y.set((clientY - top) / height - 0.5);
   }
+
   return (
-    <motion.div onMouseMove={handleMouseMove} onMouseLeave={() => { x.set(0); y.set(0); }} style={{ rotateX: useTransform(mouseY, [-0.5, 0.5], [10, -10]), rotateY: useTransform(mouseX, [-0.5, 0.5], [-10, 10]), transformStyle: "preserve-3d" }} className={className}>
-      <div style={{ transform: "translateZ(50px)" }} className="h-full w-full">{children}</div>
+    <motion.div 
+      onMouseMove={handleMouseMove} 
+      onMouseLeave={() => { x.set(0); y.set(0); }} 
+      style={{ 
+        rotateX: useTransform(mouseY, [-0.5, 0.5], [10, -10]), 
+        rotateY: useTransform(mouseX, [-0.5, 0.5], [-10, 10]), 
+        transformStyle: "preserve-3d" 
+      }} 
+      className={className}
+    >
+      <div style={{ transform: "translateZ(50px)" }} className="h-full w-full">
+        {children}
+      </div>
     </motion.div>
   );
 };
@@ -793,34 +859,74 @@ const ScrollReveal = ({ children, className, delay = 0 }: { children: React.Reac
   const ref = useRef(null);
   const isInView = useInView(ref, { once: true, margin: "-50px" });
   return (
-    <motion.div ref={ref} className={className} initial={{ opacity: 0, y: 30 }} animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }} transition={{ duration: 0.8, delay: delay, ease: [0.25, 0.46, 0.45, 0.94] }}>
+    <motion.div 
+      ref={ref} 
+      className={className} 
+      initial={{ opacity: 0, y: 30 }} 
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 30 }} 
+      transition={{ duration: 0.8, delay: delay, ease: [0.25, 0.46, 0.45, 0.94] }}
+    >
       {children}
     </motion.div>
   );
 }
 
-const CourseCardModern = ({ title, subtitle, badge, accentColor, icon, features, highlighted, onEnroll, delay }: any) => {
+const CourseCardModern = ({ title, subtitle, badge, accentColor, icon, features, curriculum, highlighted, onEnroll, delay }: any) => {
+  const [isOpen, setIsOpen] = useState(false);
+  
   const colors: any = {
     blue: { border: "border-blue-500/30", text: "text-blue-600 dark:text-blue-400", bg: "bg-blue-100/50 dark:bg-blue-500/10", glow: "shadow-blue-500/20" },
     cyan: { border: "border-cyan-500/50", text: "text-cyan-600 dark:text-cyan-400", bg: "bg-cyan-100/50 dark:bg-cyan-500/10", glow: "shadow-cyan-500/30" },
     purple: { border: "border-purple-500/30", text: "text-purple-600 dark:text-purple-400", bg: "bg-purple-100/50 dark:bg-purple-500/10", glow: "shadow-purple-500/20" },
   };
   const c = colors[accentColor];
+
   return (
     <ScrollReveal delay={delay} className="h-full">
-      <motion.div whileHover={{ y: -10 }} className={`relative p-8 rounded-3xl border ${c.bg} backdrop-blur-xl transition-all duration-300 h-full flex flex-col ${c.border} ${highlighted ? "shadow-2xl scale-105 z-10 " + c.glow : "shadow-lg hover:border-slate-300 dark:hover:border-white/20"}`}>
+      <motion.div 
+        whileHover={{ y: -10 }} 
+        className={`relative p-8 rounded-3xl border ${c.bg} backdrop-blur-xl transition-all duration-300 h-full flex flex-col ${c.border} ${highlighted ? "shadow-2xl scale-105 z-10 " + c.glow : "shadow-lg hover:border-slate-300 dark:hover:border-white/20"}`}
+      >
         {highlighted && <div className="absolute top-0 right-0 bg-gradient-to-l from-cyan-500 to-blue-600 text-white text-[10px] font-black px-4 py-1 rounded-bl-xl rounded-tr-2xl uppercase tracking-widest">Best Value</div>}
         <div className={`w-12 h-12 rounded-2xl bg-white dark:bg-slate-950 border border-slate-200 dark:border-white/10 ${c.text} flex items-center justify-center mb-6 shadow-sm`}>{icon}</div>
         <span className={`inline-block px-3 py-1 rounded-md bg-white/50 dark:bg-white/5 border border-slate-200 dark:border-white/10 ${c.text} text-[10px] font-black uppercase tracking-wider w-fit mb-4`}>{badge}</span>
         <h3 className="text-3xl font-black text-slate-900 dark:text-white mb-0">{title}</h3>
         <p className="text-slate-600 dark:text-slate-500 font-medium mb-6">{subtitle}</p>
         <div className="w-full h-px bg-gradient-to-r from-transparent via-slate-200 dark:via-white/10 to-transparent mb-6"></div>
+        
+        {/* CURRICULUM ACCORDION */}
+        <button 
+          onClick={() => setIsOpen(!isOpen)} 
+          className="flex items-center gap-2 text-xs font-bold text-slate-500 dark:text-slate-400 mb-4 hover:text-cyan-500 transition-colors"
+        >
+           {isOpen ? "Hide Syllabus" : "View Syllabus"} <ChevronDown className={`transition-transform ${isOpen ? "rotate-180" : ""}`} size={14}/>
+        </button>
+        <AnimatePresence>
+          {isOpen && (
+            <motion.ul 
+              initial={{ height: 0, opacity: 0 }} 
+              animate={{ height: "auto", opacity: 1 }} 
+              exit={{ height: 0, opacity: 0 }} 
+              className="space-y-2 mb-6 overflow-hidden"
+            >
+              {curriculum?.map((topic:string, i:number) => (
+                <li key={i} className="text-xs text-slate-600 dark:text-slate-400 pl-2 border-l border-slate-300 dark:border-white/10">{topic}</li>
+              ))}
+            </motion.ul>
+          )}
+        </AnimatePresence>
+
         <ul className="space-y-4 mb-8 flex-grow">
           {features.map((f:string, i:number) => (
-            <li key={i} className="flex items-start gap-3 text-slate-600 dark:text-slate-300 font-medium text-sm"><CheckCircle size={16} className={`${c.text} shrink-0 mt-0.5`} /> {f}</li>
+            <li key={i} className="flex items-start gap-3 text-slate-600 dark:text-slate-300 font-medium text-sm">
+              <CheckCircle size={16} className={`${c.text} shrink-0 mt-0.5`} /> {f}
+            </li>
           ))}
         </ul>
-        <button onClick={onEnroll} className={`w-full py-4 rounded-xl font-bold text-white bg-slate-800 hover:bg-slate-700 border border-white/5 transition-all mt-auto flex items-center justify-center gap-2 group`}>
+        <button 
+          onClick={onEnroll} 
+          className={`w-full py-4 rounded-xl font-bold text-white bg-slate-800 hover:bg-slate-700 border border-white/5 transition-all mt-auto flex items-center justify-center gap-2 group`}
+        >
           Join Batch <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform"/>
         </button>
       </motion.div>
@@ -830,23 +936,26 @@ const CourseCardModern = ({ title, subtitle, badge, accentColor, icon, features,
 
 const EnrollmentForm = ({ waNumber }: { waNumber: string }) => {
   const [formData, setFormData] = useState({ name: "", classNum: "", city: "" });
+  
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if(!formData.name || !formData.classNum) return alert("Please fill details");
     
-    // TRIGGER CONFETTI
+    // Trigger Confetti
     confetti({
        particleCount: 150,
        spread: 80,
        origin: { y: 0.6 },
-       colors: ['#06b6d4', '#8b5cf6', '#ffffff'] // Cyan, Violet, White
+       colors: ['#06b6d4', '#8b5cf6', '#ffffff']
     });
 
     const message = `*New Admission Inquiry*\n\nName: ${formData.name}\nClass: ${formData.classNum}\nCity: ${formData.city || "Ujjain"}\n\nI want to book a demo class.`;
+    
     setTimeout(() => {
        window.open(`https://wa.me/${waNumber}?text=${encodeURIComponent(message)}`, '_blank');
-    }, 1500); // Wait for confetti before opening WhatsApp
+    }, 1500);
   };
+
   return (
     <form onSubmit={handleSubmit} className="space-y-4 relative z-10">
       <div className="grid md:grid-cols-2 gap-4">
